@@ -1,0 +1,14 @@
+Ideas for Level Editor 2:
+
+I understand that this library is a quick-and-dirty implementation IOT make progress on my upcoming game, 
+Castle Darkheart. However, for future-proofing, scalability, and flexibility, I need to improve the quality of 
+the code greatly
+
+Generic:
+> Isolate heavy-lifting functions into their own areas to free up the core library, making it more flexible
+and user-friendly
+> Use css-like scripts to eliminate unnecessary and redundant cosmetic work
+
+Specific:
+> Instead of using mouse.get_pressed(), use pygame mouse events to detect unique presses, avoiding
+the entire 'just pressed' conundrum

@@ -1,0 +1,22 @@
+{"name":"settings", "regions":
+    [
+    {"ID":0,"type":"text", "rect":[0,0,1200,101], "movable":0, "text":
+        [{"name": "title", "size":80, "text":"Settings", "color":[255, 255, 255], "anal":0, "pos":[475,10]}
+        ]},
+    {"ID":10,"type":"button", "image":"data/return.png", "pos":[1132,683], "scale":1.5,"colorkey":[255,255,255],
+    "function":"change_page", "self_args":["gui"], "args":["main"], "img_pad":2},
+    {"ID":2,"type":"checkbox", "rect":[200,200,40,40],"pos":[5,-5], "scale":1,"colorkey":[255,255,255],
+        "attr":"snap_to", "img_pad":4, "default":0, 
+        "text":{"name":"snap", "size":50, "text":"Snap To", "color":[255, 255, 255], "anal":0, "pos":[60,-3]}},
+    {"ID":3,"type":"checkbox", "rect":[200,250,40,40],"pos":[5,-5], "scale":1,"colorkey":[255,255,255],
+        "attr":"autotile", "img_pad":4, "default":0, 
+        "text":{"name":"crackle", "size":50, "text":"Autotile", "color":[255, 255, 255], "anal":0, "pos":[60,-3]}},
+    {"ID":4,"type":"checkbox", "rect":[200,300,40,40],"pos":[5,-5], "scale":1,"colorkey":[255,255,255],
+        "attr":"show_grid", "img_pad":4, "default":0, 
+        "text":{"name":"pop", "size":50, "text":"Show Grid", "color":[255, 255, 255], "anal":0, "pos":[60,-3]}},
+    {"ID":5,"type":"checkbox", "rect":[200,350,40,40],"pos":[5,-5], "scale":1,"colorkey":[255,255,255],
+        "attr":"place_multiple", "img_pad":4, "default":0, 
+        "text":{"name":"pop", "size":50, "text":"Place Multiple", "color":[255, 255, 255], "anal":0, "pos":[60,-3]}},
+    {"ID":1,"type":"blank", "rect":[0,100,1200,649]}
+    ]
+}
