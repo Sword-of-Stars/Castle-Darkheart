@@ -8,7 +8,10 @@ Generic:
 > Isolate heavy-lifting functions into their own areas to free up the core library, making it more flexible
 and user-friendly
 > Use css-like scripts to eliminate unnecessary and redundant cosmetic work
+> Build a config file to instantiate world values (like chunk size)
+> Build a library "pynamap" or some sh*t to make a normal map with incredibly simple and extensible functionality
 
 Specific:
 > Instead of using mouse.get_pressed(), use pygame mouse events to detect unique presses, avoiding
 the entire 'just pressed' conundrum
+> Allow for noise integration for maps and stuff

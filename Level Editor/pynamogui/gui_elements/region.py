@@ -19,6 +19,8 @@ class Region():
       self.body_color = body_color
       self.border_color = border_color
 
+      self.visible = True
+
    def draw(self, screen):
       pygame.draw.rect(screen, self.border_color, self.border_rect)
       pygame.draw.rect(screen, self.body_color, self.rect)
@@ -27,4 +29,5 @@ class Region():
       pass
 
    def update(self, pos, state, rel, screen):
-      self.draw(screen)
+      if self.visible:
+         self.draw(screen)

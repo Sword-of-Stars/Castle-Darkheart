@@ -1,1 +1,47 @@
 Lizard Alchemist - Toil and Trouble
+Overworld and Underworld - Descent into Ringwell
+Open-World - Penance
+
+1-3-24
+Um, not exactly sure where the rest of the devlogs went, but this is a pretty good place to start.
+
+I worked a lot on the framework, and now things are a lot smoother. Everything's been abstracted out into
+its own class/function, and the entire Pynamo framework is actually shaping up pretty nicely.
+
+A few bugs I've noticed:
+1) Enemy movement is annoying as sin. It keeps glitching through the walls and stuff, likely due to a velocity error
+   I'll need to isolate, identify, and remedy this error IOT make enemy movement good. Hopefully the solution is elegant
+   - Yep, fixed it, actually the problem was pretty simple, just had to update the camera, then the obstacles, then run collision tests
+   - Maybe I didn't completely fix it, but enough of it is remedied
+2) Pygame audio mixer. TBH, I haven't invested any time into fixing this error, so it's of low priority
+
+Next on the TODO list, aside from cleaning up code:
+1) Create config files for weapons, player, and enemies, so I have one simple area to edit attributes
+2) Work on the spell/hymn system, and add them to the game
+3) Create UI and make the main menu screen actually good
+4) Iterate on the music for Dragonkeep Vigil and Boss Theme, as well as come up with new themes:
+   - haunted waltz, ambiance 1&2, final boss theme (mad king)
+5) Come up with credits page, load/save system, achievements
+6*) Finish building level editor and make it usable/good to usable
+    a) implement autotiling algorithm
+    b) asset implementation (animated, static)
+    c) code cleanup and documentation
+    d) map exporting
+    e) specific/creative rooms
+7) Work out the lore for my game
+8) AI for enemies and Black Iron Pact
+9) Room generation
+10) General polish and game feel (shaders, genosequa)
+
+TIMELINE:
+January - finish level editor
+February - finish enemy and AI, level design
+March - Finish music, art, polish, and finish MVP for playtesting
+
+by NOTA, I need a finished game, for final playtesting and release on Steam/Itch
+
+I want to create, partly because I feel alone at times. I'm not the most comfortable with alterations and changes in the physical world; 
+I want something that won't change. Maybe that's why my game's based on religion, maybe it's because I have a GC (though that's highly
+unlikely), I don't know. 
+
+It's kind of nice really. These game devlogs are my sort of journal, a chronicle of the time I've spent working on them. I kind of like this. :)

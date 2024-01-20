@@ -1,6 +1,6 @@
 import pygame, sys
 
-from ..gui_elements.regions import WorldBox, ScrollBox, TextBox, ImageBox, BlankRegion
+from ..gui_elements.regions import WorldBox, ScrollBox, TextBox, ImageBox, BlankRegion, StaticSelectBox
 from ..gui_elements.elements import ImgButton_base, Checkbox
 from ..builder import Builder
 from ..misc.core_functions import load_json, get_mouse_info
@@ -73,8 +73,15 @@ class Page():
                 self.regions[region["ID"]] = ImgButton_base(region, gui)
             elif region['type'] == 'checkbox':
                 self.regions[region["ID"]] = Checkbox(region, gui)
+            elif region['type'] == 'static':
+                self.regions[region["ID"]] = StaticSelectBox(region, gui)
             else:
                 print(f"'{region['type']}' is not a valid region type.")
+
+            if "visible" in region:
+                self.regions[region["ID"]].visible = False
+
+
         self.regions = dict(sorted(self.regions.items()))
 
     def handle_scroll(self, event, pos):
@@ -83,7 +90,8 @@ class Page():
 
     def update(self, pos, state, rel, screen):
         for _, region in self.regions.items():
-            region.update(pos, state, rel, screen)
+            if region.visible:
+                region.update(pos, state, rel, screen)
         gui.builder.update(pos, state, screen)
     
 gui = GUI()

@@ -6,7 +6,7 @@ import functools
 
 from PIL import Image
 
-from ..misc.core_functions import get_asset_files, world_to_screen, screen_to_world, load_json, prep_image, get_images
+from ..misc.core_functions import get_asset_files, world_to_screen, screen_to_world, load_json, prep_image, get_images, screen_to_chunk, screen_to_chunk_id
 from ..gui_elements.region import Region
 from ..gui_elements.elements import Selectable, BuilderObject, SelectableCell
 from ..builder.builder_functions import get_path_id, get_images_from_db
@@ -257,6 +257,8 @@ class WorldBox(Region):
 
       self.builder = builder
 
+      self.chunk_size = 4
+
       self.scale = 1
       self.pre_scale = 1
       self.scroll_speed = 0.1
@@ -321,11 +323,27 @@ class WorldBox(Region):
 
    def get_grid_coord(self, pos):
       x, y = screen_to_world(pos, self.offset, scale=self.scale)
-      return (x//self.SIZE,-y//self.SIZE)
+      return (x//self.SIZE,y//self.SIZE)
    
+   def get_chunk_from_grid(self, tile_pos):
+      x, y = tile_pos
+      chunk_id = f"{int(x//4)};{int(y//4)}"
+      return chunk_id
+
    def get_screen_coord(self, world_coords):
       return world_to_screen(world_coords, self.offset, scale=self.scale)
    
+   def get_tile_coord(self, pos):
+      # cx, cy describes the x- and y-coordinate of the active chunk
+      cx, cy = screen_to_chunk(pos, self.offset, self.scale)
+
+      # px, py decribes the coordinate of the square within the chunk
+      px, py = self.get_grid_coord(pos)
+      tile_pos = [int(px%4), int(py%4)]
+      chunk_id = f"{cx};{cy}"
+
+      return tile_pos, chunk_id
+
    def calculate_offset(self, state, pos, rel):
       if state[0]: # and the builder has nothing selected
          self.pan(pos, rel)
@@ -341,33 +359,145 @@ class WorldBox(Region):
       self.show_grid = val
 
    def draw_world(self, screen):
+      # Get the current world
       m = self.builder.current_map['chunks']
+
+      renderer = []
+
+      # IDEA:
+      # Check to see what chunks are on screen
+      # Then, pass all tiles to a render list and sort with z-order
+      # Once that's done, only check to see if a chunk is loaded or unloaded,
+      # eliminating the need to recalculate every frame
+
+      # For each item in the world
       for key, chunk in m.items(): # Set to visible later, rough for now
+
+         # Convert chunk id into usable parameters
          cx, cy = [int(x) for x in key.split(";")]
+
+         # Pass all tiles in chunk to a renderer
          for tile in chunk:
+
+            # Draw tiles
             if tile['group'] == 'tile':
                x, y = tile['pos']
                pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
                img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
-               screen.blit(img, pos)
+               renderer.append((img, pos, tile["z-order"]))
+
             elif tile['group'] == 'decor': # For now, identical code. However, in the future, this should include offsets for decor
-               x, y = tile['pos']
-               pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+
+               if tile["offset"] == [0,0]:
+                  x, y = tile['pos']
+                  pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+
+               else:
+                  x, y = tile['offset']
+                  pos = world_to_screen((x, y), self.offset, self.scale) # Magic numbers!
+
                img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
                screen.blit(img, pos)
+         
+      for item in sorted(renderer, key=lambda x:x[2]): # sort based on z-order
+         screen.blit(item[0], item[1])
+
+   def place_asset(self, pos, layer, selected, current_map, snap_to=False):
+      # cx, cy describes the x- and y-coordinate of the active chunk
+      cx, cy = screen_to_chunk(pos, self.offset, self.scale)
+
+      # px, py decribes the coordinate of the square within the chunk
+      px, py = self.get_grid_coord(pos)
+
+      # px makes sense for now, but py is a mystery
+      px = int(px%4)
+      py = int(py%4)
+
+      # Code for freeform placement
+      mx, my = 0,0
+      if not snap_to:
+         mx, my = screen_to_world(pos, self.offset, scale=self.scale)
+         mx, my = int(mx), int(my)
+
+      # Create and place new object reference - doesn't need to be over-optimized
+      new_obj = {"tile_ID":selected.id, "group":selected.group,
+                  "z-order":layer,"pos":[px, py], "offset":[mx,my]}
+
+      chunk_id = f"{cx};{cy}"
+
+      # Clear the map for new asset
+      self.remove_asset(new_obj['pos'], new_obj['z-order'], chunk_id, current_map)
+
+      current_map['chunks'][chunk_id].append(new_obj)
+
+   def remove_asset(self, obj_pos, obj_layer, chunk_id, current_map):
+      if chunk_id not in current_map['chunks']:
+         current_map['chunks'][chunk_id] = []
+
+      for i in current_map['chunks'][chunk_id]:
+         if i["pos"] == obj_pos and i['z-order'] == obj_layer:
+               current_map['chunks'][chunk_id].remove(i)
+               break      
+
+   def get_neighbors(self, tile_pos, chunk_id):
+      # chunk_id is given as the hash key in the form "1;2"
+      # tile is given as [0,3]
+      # given neighbors in the form of a dictionary
+      # i.e. {"1;2":[0,3], "2;2"[0,1]}]
+      neighbors = []
+      cx, cy = [int(c) for c in chunk_id.split(";")]
+      x, y = tile_pos
+
+      # Up
+      if y == self.chunk_size - 1:
+         neighbors.append([[f"{cx};{cy+1}"],[x, 0]])
+      else:
+         neighbors.append([chunk_id,[x, y+1]])
+
+      # Then the right
+      if x == self.chunk_size-1:
+         neighbors.append([[f"{cx+1};{cy}"],[0, y]])
+      else:
+         neighbors.append([chunk_id,[x+1, y]])
+
+      # Down
+      if y == 0:
+         neighbors.append([[f"{cx};{cy-1}"],[x, self.chunk_size-1]])
+      else:
+         neighbors.append([chunk_id,[x, y-1]])
+
+      # Left
+      if x == 0:
+         neighbors.append([[f"{cx-1};{cy}"],[self.chunk_size-1, y]])
+      else:
+         neighbors.append([chunk_id,[x-1, y]])
+
+
+
+   def get_range(self, pos1, pos2):
+      p1 = self.get_grid_coord(pos1)
+      p2 = self.get_grid_coord(pos2)
+
+      topleft = [min(p1[0], p2[0]), max(p1[1], p2[1])]
+      botright = [max(p1[0], p2[0]), min(p1[1], p2[1])]
+
+      return topleft, botright
+   
+   def get_tiles_in_range(self, tl, br):
+      c1 = self.get_chunk_from_grid(tl)
+      c2 = self.get_chunk_from_grid(br)
 
    def update(self, pos, state, rel, screen):
-      self.draw(screen)
-      self.calculate_offset(state, pos, rel)
+      if self.visible:
+         self.draw(screen)
+         self.calculate_offset(state, pos, rel)
 
-      self.is_over = self.rect.collidepoint(pos)
+         self.is_over = self.rect.collidepoint(pos)
 
-      #print(self.get_grid_coord(pos))
+         self.draw_world(screen)
 
-      self.draw_world(screen)
-
-      if self.builder.show_grid:
-         self.draw_grid(screen)
+         if self.builder.show_grid:
+            self.draw_grid(screen)
 
 class TextBox(Region):
    '''
@@ -469,6 +599,56 @@ class TextBox(Region):
    def update(self, pos, state, rel, screen):
       self.draw(screen)
       self.draw_text(pos, state, screen)
+
+class StaticSelectBox(Region):
+   # To be uised for tilesets (autotile)
+   # So, this thing is going to need:
+   # 1) Some sort of access to tilesets to get the display image
+   # 2) Interactive tile movements (slide right on hover)
+   # 3) Connection to autotile algorithm
+
+   def __init__(self, config, gui):
+      Region.__init__(self, *config['rect'])
+
+      self.gui = gui
+      self.builder = gui.builder
+
+      self.offset = [10,10]
+      self.vert_spacing = 10
+
+      self.images = self.load_images(config)
+      self.disp_image = Selectable(self.images[-1], "tile", [10,0], _id = f"ss;{self.path_id};{48}")
+      self.disp_image.set_pos((self.rect.x + self.offset[0], self.rect.y + self.offset[1]))
+      self.selectables = [self.disp_image]
+
+   def load_images(self, config):
+      self.path_id = get_path_id(f"{self.builder.path_to_save}/config.json", config['spritesheet'])
+      return get_images_from_db(self.builder.database, self.path_id)
+   
+   def draw_selectables(self, pos, state, screen):
+      self.disp_image.update(pos, state, screen, True)
+
+   def select_selectables(self):
+      select_any = False
+      for img in self.selectables:
+         if img.selected:
+            select_any = True
+            if not img.just_selected:
+               img.just_selected = True
+               self.builder.select(BuilderObject(img.img, img.group, img.id))
+            
+         else:
+            img.just_selected = False
+         
+      if not select_any:
+         if self.builder.selected != None:
+            del self.builder.selected
+            self.builder.select(None)
+
+   def update(self, pos, state, rel, screen):
+      self.draw(screen)
+      self.draw_selectables(pos, state, screen)
+      self.select_selectables()
 
 class FolderNav(Region):
    def __init__(self, config, gui):

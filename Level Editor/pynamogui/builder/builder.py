@@ -34,7 +34,6 @@ class Builder():
 
         self.load_database()
 
-
     def set_regions(self):
         self.header = self.gui.pages['main'].regions[2] # Future-proof later
         self.world = self.gui.pages['main'].regions[0]
@@ -49,61 +48,19 @@ class Builder():
             self.update_selected("None")
 
     def place_asset(self, pos):
-        # Not the cleanest way, but this is how I've been doing garbage collection for a while, so it's good enough. 
-        # Additionally, I should update these screen-to-world functions to better accomodate pixel size. 
-        
-        cx, cy = screen_to_chunk2(pos, self.world.offset, self.world.scale)
-        px, py = self.world.get_grid_coord(pos)
-
-        py = int(-1-py-4*cy)
-        if py < 0:
-            py = 0
-
-
-        # Create and place new object reference - doesn't need to be over-optimized
-        new_obj = {"tile_ID":self.selected.id, "group":self.selected.group,
-                    "z-order":self.layer,"pos":[int(px-4*cx), py]}
-        
-        #if int(-1-py-4*cy) < 0:
-            #print("OH, ****")
-
-        
-        chunk_id = f"{cx};{cy}"
-        if chunk_id not in self.current_map['chunks']:
-            self.current_map['chunks'][chunk_id] = []
-
-        for i in self.current_map['chunks'][chunk_id]:
-            if i["pos"] == new_obj['pos'] and i['z-order'] == new_obj['z-order']:
-                self.current_map['chunks'][chunk_id].remove(i)
-                break           
-
-        self.current_map['chunks'][chunk_id].append(new_obj)
-
-        #print(self.current_map)
+        self.world.place_asset(pos, self.layer, self.selected, 
+                               self.current_map, snap_to=self.snap_to)
         
     def remove_asset(self, pos):
         # In later versions, condense this code from place asset
-        cx, cy = screen_to_chunk2(pos, self.world.offset, scale=self.world.scale)
-        px, py = self.world.get_grid_coord(pos)
-        obj_pos = [int(px-4*cx), int(-1-py-4*cy)]
-        chunk_id = f"{cx};{cy}"
-
-        if chunk_id not in self.current_map['chunks']:
-            self.current_map['chunks'][chunk_id] = []
-
-        for i in self.current_map['chunks'][chunk_id]:
-            if i["pos"] == obj_pos and i['z-order'] == self.layer:
-                self.current_map['chunks'][chunk_id].remove(i)
-                break
+        tile_pos, chunk_id = self.world.get_tile_coord(pos)
+        self.world.remove_asset(tile_pos, self.layer, chunk_id, self.current_map)
 
     def get_selected_chunk(self, pos):
-        cx, cy = screen_to_chunk2(pos, self.world.offset, scale=self.world.scale)
-        px, py = self.world.get_grid_coord(pos)
-        obj_pos = [int(px-4*cx), int(-1-py-4*cy)]
-        chunk_id = f"{cx};{cy}"
+        tile_pos, chunk_id = self.world.get_tile_coord(pos)
 
         print(f"Current chunk: {chunk_id}")
-        print(f"{obj_pos}")
+        print(f"{tile_pos}")
         if chunk_id not in self.current_map['chunks']:
             self.current_map['chunks'][chunk_id] = []
         print(f"Chunk Data: {self.current_map['chunks'][chunk_id]}")
@@ -152,22 +109,27 @@ class Builder():
             if self.snap_to:
                 # Not sure if I want the sprite to snap to the center, or topleft
                 # Regardless, each sprite will likely need a config setup to establish offsets
-                if self.selected.group == "tile" or self.selected.group == "decor":
-                    self.selected.rect.bottomleft = world_to_screen((x*self.world.SIZE, -y*self.world.SIZE), 
+                if self.selected.group == "tile":
+                    self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
                                                                 self.world.offset, scale=self.world.scale)
-                #elif self.selected.group == "decor":
-                   # self.selected.rect. = world_to_screen((x*self.world.SIZE, -y*self.world.SIZE), 
-                                                              #  self.world.offset, scale=self.world.scale)
+                elif self.selected.group == "decor":
+                    self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
+                                                              self.world.offset, scale=self.world.scale)
             else:
-                self.selected.rect.center = pos
+                self.selected.rect.topleft = pos
 
             if state[0]:
                 if not self.just_clicked or self.place_multiple:
                     self.just_clicked = True
                     if self.world.is_over:
-                        self.place_asset(pos)
-            else:
-                self.just_clicked = False
+                        if not self.autotile:
+                            self.place_asset(pos)
+                        elif self.autotile:
+                            tile_pos, chunk_id = self.world.get_tile_coord(pos)
+                            neigas = self.world.get_neighbors(tile_pos, chunk_id)
+                            self.place_asset(pos)
+                else:
+                    self.just_clicked = False
         
             self.selected.update(screen)
         else:

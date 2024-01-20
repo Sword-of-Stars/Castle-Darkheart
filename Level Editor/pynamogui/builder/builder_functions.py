@@ -44,8 +44,7 @@ def get_images_from_db(db, path_id):
         if path_id == key.split(";")[1]:
             images.append(item)
     return images
-
-        
+      
 def generate_id(type, path, index, config_path):
     if type == 'spritesheet':
         method = 'ss'

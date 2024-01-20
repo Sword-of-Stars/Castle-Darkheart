@@ -1,0 +1,47 @@
+# Archvale Melee Combat System, translated from Unity to Godot based on Tturna's code
+# Instructions: 
+# - This script is on the weapon sprite node
+# - This node has a parent node, which acts as an anchor for rotation
+# - This player node is the parent of the rotation anchor node
+# - Your weapons should be drawn upright, not right, like the sword blade should be pointing UP
+
+# The node hirarchy should look like this
+#
+# Player
+# - Weapon Anchor
+# - - Weapon Sprite (includes this script and the sprite)
+
+# Made by PyScrap
+# 2023-3-31
+
+extends Sprite
+
+export var weaponOffset: Vector2
+export var swingSpeed: float = 10 # Set this in the inspector. Default is 10
+
+var swing: int = -1
+onready var anchor = get_parent()
+var target: float
+var swingAngle: float
+var swinging: bool
+
+func _process(delta: float) -> void:
+    var mousePos: Vector2 = ((anchor.get_parent().get_local_mouse_position() - anchor.position) + weaponOffset).normalized()
+    var angle: float = rad2deg(atan2(mousePos.y, mousePos.x))
+    swingAngle = lerp(swingAngle, swing * 90, delta * swingSpeed)
+    anchor.rotation_degrees = angle + swingAngle
+    
+    var t: float = 225 if swing == 1 else -45
+    target = lerp(target, t, delta * swingSpeed)
+    
+    if abs(t - target) < 5:
+        swinging = false
+    
+    rotation_degrees = target
+    
+    if Input.is_action_just_pressed("left_click"):
+        if swinging:
+            return
+        
+        swing *= -1
+        swinging = true

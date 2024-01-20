@@ -3,6 +3,13 @@ import json
 
 def change_page(gui, page):
     gui.current_page = page
+    
+def change_visible_regions(gui, off, on):
+    current_page = gui.pages[gui.current_page]
+    for region in off: 
+        current_page.regions[region].visible = False
+    for region in on: 
+        current_page.regions[region].visible = True
 
 def change_palette(gui, config):
     gui.builder.palette.get_images(config)

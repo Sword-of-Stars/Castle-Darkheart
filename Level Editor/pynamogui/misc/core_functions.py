@@ -2,6 +2,7 @@ import pygame
 import json
 import os
 import importlib
+from PIL import Image
 
 CHUNK_DIVISOR = 4
 SIZE = 64
@@ -22,26 +23,26 @@ def screen_to_world(screen_coords, offset, scale=1):
     world_y = (screen_y/scale) + offset_y
     return [world_x, world_y]
 
-'''def world_to_screen(world_coords, offset, SIZE=SIZE, scale=1):
-    world_x, world_y = world_coords
-    offset_x, offset_y = offset
-    screen_x = (world_x*SIZE - offset_x)*scale
-    screen_y = (world_y*SIZE - offset_y)*scale
-    return [screen_x, screen_y]
-
-def screen_to_world(screen_coords, offset, SIZE=SIZE, scale=1):
+def screen_to_world2(screen_coords, offset, SIZE=SIZE, scale=1):
     screen_x, screen_y = screen_coords
     offset_x, offset_y = offset
     world_x = (screen_x/scale) + offset_x
     world_y = (screen_y/scale) + offset_y
-    return [int(world_x//SIZE), int(world_y//SIZE)]'''
+    return [int(world_x//SIZE), int(world_y//SIZE)]
 
-def screen_to_chunk(pos, offset):
-    return get_chunk_id(screen_to_world(pos, offset))
+def screen_to_chunk(pos, offset, scale=1):
+    return get_chunk(screen_to_world2(pos, offset, scale=scale))
+
+def get_chunk(pos):
+    x, y = pos
+    divisor = CHUNK_DIVISOR
+    return int(x//divisor), int(y//divisor)
+
+def screen_to_chunk_id(pos, offset, scale=1):
+    return get_chunk_id(screen_to_world2(pos, offset, scale=scale))
 
 def get_chunk_id(pos):
     x, y = pos
-    #divisor = CHUNK_SIZE/SIZE
     divisor = CHUNK_DIVISOR
     return f"{x//divisor};{y//divisor}"
 
@@ -92,11 +93,13 @@ def prep_image2(path, scale, colorkey=(255,255,255)):
     return img
 
 def get_images(spritesheet):
-    SECTION_START = (255,0,255)
-    SECTION_END = (63,72,204)
+    SECTION_END = (255,174,201, 255)
+    SECTION_START = (63,72,204, 255)
 
     start = []
     end = []
+
+    spritesheet = spritesheet.convert("RGBA")
     
     width, height = spritesheet.size
     for x in range(width):
@@ -113,10 +116,61 @@ def get_images(spritesheet):
         image_bytes = img.tobytes()
 
 # Create a Pygame surface from the bytes object
-        img2 = pygame.image.fromstring(image_bytes, img.size, 'RGB')#.set_colorkey((255,255,255))
+        img2 = pygame.image.fromstring(image_bytes, img.size, 'RGBA')#.set_colorkey((255,255,255))
         images.append(img2)
 
     return images
+
+def get_n0_images(spritesheet_loc):
+    """Extracts a series of images from a spritesheet
+
+    Args:
+        spritesheet_loc (str): location of the spritesheet
+
+    Returns:
+        list: a list of images
+    """
+
+    # RGB values for corner pieces
+    SECTION_END = (255,174,201)
+    SECTION_START = (63,72,204)
+
+    start = []
+    end = []
+
+    with Image.open(spritesheet_loc) as spritesheet:
+        
+        # Get dimensions of spritesheet
+        width, height = spritesheet.size
+
+        # Side effect of removing transparency
+        spritesheet = spritesheet.convert("RGB")
+
+        # Loop through every pixel in sheet (top to bottom, left to right)
+        for x in range(width):
+            for y in range(height):
+
+                # Get the pixel value and see if it's important
+                c = spritesheet.getpixel((x, y))
+                if c == SECTION_START:
+                    start.append([x,y])
+                elif c == SECTION_END:
+                    end.append([x,y])
+
+        images = []
+
+        # For each detected image, 
+        for i in range(len(start)):
+
+            # Isolates the desired image chunk
+            img = spritesheet.crop([start[i][0]+1, start[i][1]+1, end[i][0], end[i][1]])
+            image_bytes = img.tobytes()
+
+            # Create a Pygame surface from the bytes object
+            img2 = pygame.image.fromstring(image_bytes, img.size, 'RGB')
+            images.append(img2)
+
+        return images
 
 #-- Dynamic Function Handling --#
 

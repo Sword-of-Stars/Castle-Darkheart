@@ -1,14 +1,7 @@
 {"name":"main", "regions":
     [
         {"ID":0,"type":"world", "rect":[301,50,899,700],"size":64},
-        {"ID":1,"type":"text", "rect":[0,0,300,201], "movable":1, "text":
-            [{"name": "tileset_1", "size":50, "text":"tileset_1", "color":[255, 255, 255], "anal":0, "pos":[10,10], "function":"change_palette", 
-              "self_args":["builder"],"args":[{"method":"spritesheet", "spritesheet":"data/tileset.png", "group":"tile","image_start_offset":[20,20], 
-                "vert_offset":10, "scale":4, "colorkey":[255,255,255]}]},
-             {"name": "decor_1", "size":50, "text":"decor_1", "color":[255, 255, 255], "anal":0, "pos":[10,40],"function":"change_palette", 
-             "self_args":["builder"],"args":[{"method":"spritesheet", "spritesheet":"data/cave_decor.png", "group":"decor","image_start_offset":[20,20], 
-               "vert_offset":10, "scale":4, "colorkey":[255,255,255]}]}
-            ]},
+        
         {"ID":2,"type":"text", "rect":[299,0,901,50], "movable":0, "text":
             [{"name":"layer", "size":30, "text":"Layer", "color":[255, 255, 255], "anal":0, "pos":[10,10]},
              {"name":"layer_num", "size":30, "text":"0", "color":[255, 255, 255], "anal":0, "pos":[60,10]},
@@ -24,6 +17,15 @@
         {"ID":5,"type":"button", "image":"data/settings.png", "pos":[1134,685], "scale":2,"colorkey":[255,255,255],
         "function":"change_page", "self_args":["gui"], "args":["settings"], "img_pad":4},
         {"ID":6,"type":"button", "image":"data/new.png", "pos":[1154,60], "scale":2,"colorkey":[255,255,255],
-        "function":"new_map", "self_args":[], "args":[64], "img_pad":4}
+        "function":"new_map", "self_args":[], "args":[64], "img_pad":4},
+        {"ID":7,"type":"button", "image":"data/tile.png", "pos":[854,10], "scale":2,"colorkey":[255,255,255],
+        "function":"change_visible_regions", "self_args":["gui"], "args":[[4],[11]], "img_pad":12},
+        {"ID":8,"type":"button", "image":"data/asset.png", "pos":[904,10], "scale":2,"colorkey":[255,255,255],
+        "function":"new_map", "self_args":[], "args":[64], "img_pad":12},
+        {"ID":9,"type":"button", "image":"data/event.png", "pos":[954,10], "scale":2,"colorkey":[255,255,255],
+        "function":"new_map", "self_args":[], "args":[64], "img_pad":12},
+        {"ID":10,"type":"button", "image":"data/special.png", "pos":[1004,10], "scale":2,"colorkey":[255,255,255],
+        "function":"new_map", "self_args":["gui"], "args":[64], "img_pad":12},
+        {"ID":11,"type":"static", "rect":[0,200,300,452], "visible":"", "spritesheet":"data/tileset_02.png"}
     ]
 }
