@@ -79,14 +79,15 @@ class Page():
                 print(f"'{region['type']}' is not a valid region type.")
 
             if "visible" in region:
-                self.regions[region["ID"]].visible = False
+                self.regions[region["ID"]].visible = bool(region["visible"])
 
 
         self.regions = dict(sorted(self.regions.items()))
 
     def handle_scroll(self, event, pos):
         for _, region in self.regions.items():
-            region.scroll_event(event, pos)
+            if region.visible:
+                region.scroll_event(event, pos)
 
     def update(self, pos, state, rel, screen):
         for _, region in self.regions.items():

@@ -174,7 +174,7 @@ TODO:
 3) Have camera draw to reduced size, then enlarge for actual screen (better pixel feel & performance)
 4) weird bug when I dash then click away, leaves me dashing infinitely
 
-1-13-23:
+1-13-24:
 1) cleared maps.config cache "data/cave_decor.png", "1": "data/tileset.png", "2": "data/walls.png", "3": "data/castle_tileset.png", "4": "data/castle_tileset2.png",
 2) deleted text from page1 JSON: 
         {"ID":1,"type":"text", "rect":[0,0,300,201], "movable":1, "text":
@@ -188,3 +188,18 @@ TODO:
              "self_args":["builder"],"args":[{"method":"spritesheet", "spritesheet":"data/castle_tileset2.png", "group":"tile","image_start_offset":[20,20], 
                "vert_offset":10, "scale":4, "colorkey":[255,255,255]}]}
             ]},
+
+1-20-24:
+It's been a good day so far. It's 1640 right now, and I'm sitting in my room, waiting to go on my date at 1830.
+Dom just said some pretty passive-aggressive stuff, or at least that's how I interpreted it. When I said that Kwon tapped me out, he acted as though that was a sign of weakness.
+Also, he pretended like he knew more about combatives than Kwon. That's certainly not true; I've whupped Dom's ass in under a minute before. Also, he said that if we have another
+circuit workout for Supe's PT, he's going to leave me behind. Hell no, I'm going to get good enough to absolutely dust him. When we fight on Thursday mornings, I'm going to 
+choke him out. But what would really sting him is beating his ass on the ACFT, especially on the run, or points value would be enough. That'd mean I'd need to work on deadlift, but 
+if need be, I'll do it. Pushups too, and the ball throw.
+
+All of this is being said in the name of fun, of course. I love Dom, but I'm going to put him in his place. He needs to stop acting like he's the best at everything, and get humbled a 
+little bit. I'm the first to admit that I'm not great physically, but I won't have him acting superior. And when I got an A+ in survival swim and he got a C-, he made it into a class
+issue. It would really show him if I absolutely beat him into the ground, in friendly competition. Master of the Sword or beating his IOCT time would also show him.
+
+Sorry, I just spent most of my time in this development report journalling. Here's the actual updates I implemented:
+1) Implemented autotiling into the level editor

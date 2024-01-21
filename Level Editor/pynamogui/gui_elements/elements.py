@@ -114,8 +114,6 @@ class ImgButton_base(Region):
         for i in config['args']:
             self.args.append(i)
 
-        print(self.args)
-
         self.move_on_hover = move
         self.just_selected = True
 
@@ -144,7 +142,6 @@ class ImgButton_base(Region):
             if state[0] and not self.just_selected:
                 self.just_selected = True
                 self.gui.builder.select(None)
-                print(*self.args)
                 self.func(*self.args)
             elif not state[0]:
                 self.just_selected = False

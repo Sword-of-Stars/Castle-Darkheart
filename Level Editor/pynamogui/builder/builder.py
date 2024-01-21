@@ -1,11 +1,14 @@
 import pygame
 
 from PIL import Image
+from ..builder.autotiler import Autotiler
 
 from ..builder.builder_functions import get_config, get_path_id, screen_to_chunk2
 from ..misc.core_functions import screen_to_world, world_to_screen, get_images, prep_image
 
 PATH_TO_SAVE = "maps"
+
+# TODO: Clean up autotiler and export to an external configuration file for cleanliness
 
 get_config(PATH_TO_SAVE)
 
@@ -33,6 +36,8 @@ class Builder():
         self.just_clicked = False
 
         self.load_database()
+
+        self.autotiler = Autotiler()
 
     def set_regions(self):
         self.header = self.gui.pages['main'].regions[2] # Future-proof later
@@ -122,19 +127,62 @@ class Builder():
                 if not self.just_clicked or self.place_multiple:
                     self.just_clicked = True
                     if self.world.is_over:
-                        if not self.autotile:
+                        if not self.autotile: #band-aid soln for now
                             self.place_asset(pos)
                         elif self.autotile:
-                            tile_pos, chunk_id = self.world.get_tile_coord(pos)
-                            neigas = self.world.get_neighbors(tile_pos, chunk_id)
-                            self.place_asset(pos)
+                            self.handle_autotile(pos)
+                            
                 else:
                     self.just_clicked = False
         
             self.selected.update(screen)
         else:
-            if state[2]:  
-                self.remove_asset(pos)
+            if state[2]:
+                if not self.autotile: # and autotilable
+                    self.remove_asset(pos)
+                elif self.autotile:
+                    self.remove_asset_autotile(pos)
+
+    def handle_autotile(self, pos):
+
+        tile_pos, chunk_id = self.world.get_tile_coord(pos)
+        cardinal_neighbors, diagonal_neighbors = self.world.get_neighbors(tile_pos, chunk_id)
+
+        self.place_asset(pos)
+
+        self.autotiler.update(tile_pos, chunk_id, self, self.selected.id, self.selected.group)
+
+        for chunk_, tile_pos_, _ in cardinal_neighbors:
+            if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
+                self.autotiler.update(tile_pos_, chunk_, self, self.selected.id, self.selected.group)
+
+        for chunk_, tile_pos_, _ in diagonal_neighbors:
+            if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
+                self.autotiler.update(tile_pos_, chunk_, self, self.selected.id, self.selected.group)
+        
+
+    def remove_asset_autotile(self, pos):
+        # In later versions, condense this code from place asset
+        tile_pos, chunk_id = self.world.get_tile_coord(pos)
+        tile_del = self.world.get_at(tile_pos, chunk_id, self.layer, self.current_map)
+
+        if tile_del != None:
+
+            id_ = tile_del["tile_ID"]
+            group = tile_del["group"]
+
+            self.world.remove_asset(tile_pos, self.layer, chunk_id, self.current_map)
+
+            cardinal_neighbors, diagonal_neighbors = self.world.get_neighbors(tile_pos, chunk_id)
+
+            for chunk_, tile_pos_, _ in cardinal_neighbors:
+                if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
+                    self.autotiler.update(tile_pos_, chunk_, self, id_, group)
+
+            for chunk_, tile_pos_, _ in diagonal_neighbors:
+                if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
+                    self.autotiler.update(tile_pos_, chunk_, self, id_, group)
+
 
 class BuilderUI():
     def __init__(self, builder):

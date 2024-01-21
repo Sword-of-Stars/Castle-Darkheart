@@ -166,21 +166,6 @@ class ScrollBox(Region):
             self.scroll = 0
          self.path_id = path_id
 
-            #print(path_id)
-
-            #with Image.open(config['spritesheet']) as img:
-               #self.images = get_images(img)
-               #self.path = config['spritesheet']
-
-         pass
-         # Pseudocode time!
-         # if config['method'] == folder:
-         # Load the images in the folder
-         # if confi['method'] == spritesheet:
-         # Load from spritesheet
-         # if config[method] == listofimages:
-         # Load from list of images
-
       def create_selectables(self, config):
          group = config['group']
          offset = config['image_start_offset']#(20,-180)
@@ -383,6 +368,9 @@ class WorldBox(Region):
             if tile['group'] == 'tile':
                x, y = tile['pos']
                pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+
+               pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
+
                img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
                renderer.append((img, pos, tile["z-order"]))
 
@@ -399,7 +387,7 @@ class WorldBox(Region):
                img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
                screen.blit(img, pos)
          
-      for item in sorted(renderer, key=lambda x:x[2]): # sort based on z-order
+      for item in sorted(renderer, key=lambda x:(x[2], x[1][1])): # sort based on z-order
          screen.blit(item[0], item[1])
 
    def place_asset(self, pos, layer, selected, current_map, snap_to=False):
@@ -421,10 +409,23 @@ class WorldBox(Region):
 
       # Create and place new object reference - doesn't need to be over-optimized
       new_obj = {"tile_ID":selected.id, "group":selected.group,
-                  "z-order":layer,"pos":[px, py], "offset":[mx,my]}
+                  "z-order":layer,"pos":[px, py], "offset":[mx,my],
+                  "sum":0}
 
       chunk_id = f"{cx};{cy}"
 
+      # Clear the map for new asset
+      self.remove_asset(new_obj['pos'], new_obj['z-order'], chunk_id, current_map)
+
+      current_map['chunks'][chunk_id].append(new_obj)
+
+   def place_asset_by_coord(self, chunk_id, tile_pos, layer, group, id_, current_map, snap_to=False, offset=[0,0]):
+
+      # Create and place new object reference - doesn't need to be over-optimized
+      new_obj = {"tile_ID":id_, "group":group,
+                  "z-order":layer,"pos":tile_pos, "offset":[x*self.chunk_size for x in offset],
+                  "sum":0}
+      
       # Clear the map for new asset
       self.remove_asset(new_obj['pos'], new_obj['z-order'], chunk_id, current_map)
 
@@ -439,40 +440,62 @@ class WorldBox(Region):
                current_map['chunks'][chunk_id].remove(i)
                break      
 
+   def get_at(self, tile_pos, chunk_id, layer, current_map):
+      if chunk_id in current_map['chunks']:
+         chunk = current_map['chunks'][chunk_id]
+         for tile in chunk:
+            if tile['pos'] == tile_pos and tile['z-order'] == layer:
+               return tile
+      return None
+      
    def get_neighbors(self, tile_pos, chunk_id):
+
+      def concat_chunk(x, y):
+         return f"{x};{y}"
       # chunk_id is given as the hash key in the form "1;2"
       # tile is given as [0,3]
       # given neighbors in the form of a dictionary
       # i.e. {"1;2":[0,3], "2;2"[0,1]}]
-      neighbors = []
+      cardinal_neighbors = []
+      diagonal_neighbors = []
       cx, cy = [int(c) for c in chunk_id.split(";")]
       x, y = tile_pos
 
+      up_chunk = f"{cy - (not y)}"
+      down_chunk = f"{cy + y//(self.chunk_size-1)}" #schniesty code, but it works, I guess
+      right_chunk = f"{cx + x//(self.chunk_size-1)}"
+      left_chunk = f"{cx - (not x)}"
+
+      lx = (x-1)%self.chunk_size # left x tile pos
+      rx = (x+1)%self.chunk_size
+      uy = (y-1)%self.chunk_size # up y
+      dy = (y+1)%self.chunk_size
+
       # Up
-      if y == self.chunk_size - 1:
-         neighbors.append([[f"{cx};{cy+1}"],[x, 0]])
-      else:
-         neighbors.append([chunk_id,[x, y+1]])
+      cardinal_neighbors.append([concat_chunk(cx, up_chunk),[x, uy], "up"])
 
       # Then the right
-      if x == self.chunk_size-1:
-         neighbors.append([[f"{cx+1};{cy}"],[0, y]])
-      else:
-         neighbors.append([chunk_id,[x+1, y]])
-
+      cardinal_neighbors.append([concat_chunk(right_chunk, cy),[rx, y], "right"])
+ 
       # Down
-      if y == 0:
-         neighbors.append([[f"{cx};{cy-1}"],[x, self.chunk_size-1]])
-      else:
-         neighbors.append([chunk_id,[x, y-1]])
+      cardinal_neighbors.append([concat_chunk(cx, down_chunk),[x, dy], "down"])
 
       # Left
-      if x == 0:
-         neighbors.append([[f"{cx-1};{cy}"],[self.chunk_size-1, y]])
-      else:
-         neighbors.append([chunk_id,[x-1, y]])
+      cardinal_neighbors.append([concat_chunk(left_chunk, cy),[lx, y], "left"])
 
+      # upright
+      diagonal_neighbors.append([concat_chunk(right_chunk, up_chunk),[rx, uy], "up-right"])
 
+      # down right
+      diagonal_neighbors.append([concat_chunk(right_chunk, down_chunk),[rx, dy], "down-right"])
+
+      # up left
+      diagonal_neighbors.append([concat_chunk(left_chunk, up_chunk),[lx, uy], "up-left"])
+
+      # down left
+      diagonal_neighbors.append([concat_chunk(left_chunk, down_chunk),[lx, dy], "down-left"])
+
+      return cardinal_neighbors, diagonal_neighbors
 
    def get_range(self, pos1, pos2):
       p1 = self.get_grid_coord(pos1)
