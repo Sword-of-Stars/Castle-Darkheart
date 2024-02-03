@@ -53,7 +53,7 @@ class Sword(Weapon):
         self.layer = 1.1
 
         self.smear_anim = AnimationRotation([prep_image(img, (3,4), (0,0,0)) for img in get_images("data/smears_2.png")],
-                                     self.frame_rate, self.smear_pos, self.smear_angle, 2)
+                                     self.frame_rate, self.smear_pos, self.smear_angle, layer=2)
         
         self.damage_radius = 75
         self.damage_distance = self.length // 2
@@ -82,7 +82,7 @@ class Sword(Weapon):
             return False
         else:
             if angle < 20 and angle > -160:
-                self.layer = 0.9
+                self.layer = 1
                 return False # Sword on bottom
             
             self.layer = 1.1
@@ -116,9 +116,11 @@ class Sword(Weapon):
             self.smear_frame = 0
             self.side *= -1
 
+            self.smear_anim.set_layer(2)
             self.smear_anim.set_angle(self.smear_angle)
             self.smear_anim.set_pos(self.smear_pos)
             self.smear_anim.play()
+
 
             # Tweak lifetime
             pos = self.set_pos(-self.smear_angle, 90)
@@ -148,7 +150,7 @@ class Sword(Weapon):
 
     def update(self, pos, camera):
 
-        self.render_over()
+        #self.render_over()
         self.set_angle(pos)
         self.handle_swing()
 

@@ -31,12 +31,12 @@ def get_visible_chunks(self):
         ax, ay = screen_to_chunk(self.rect.topleft, self.offset)
         bx, by = screen_to_chunk(self.rect.bottomright, self.offset)
 
-        c_dx = bx-ax+1
-        c_dy = by-ay+1
+        c_dx = bx-ax
+        c_dy = by-ay
         
         chunk_map = []
     
-        for x in range(c_dx):
+        for x in range(c_dx): # add a buffer for seamless loading
             for y in range(c_dy):
                 chunk_map.append(f"{ax+x};{ay+y}")
 
@@ -86,8 +86,8 @@ class Camera():
         
         chunk_map = []
     
-        for x in range(c_dx):
-            for y in range(c_dy):
+        for x in range(-1, c_dx):
+            for y in range(-1, c_dy):
                 chunk_map.append(f"{ax+x};{ay+y}")
                     
         return chunk_map
@@ -105,7 +105,8 @@ class Camera():
         # sort the world by y order as well
 
         # Only draw tiles that are supposed to be on screen, eventually implement y ordering
-        for item in sorted(self.render_list, key=lambda x: x.layer): # , x.rect.y)):
+       
+        for item in sorted(self.render_list, key=lambda x: (x.layer, x.rect.y, x.rect.x)): # , x.rect.y)):
             item.draw(self)
 
     def update(self):

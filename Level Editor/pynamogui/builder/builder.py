@@ -37,12 +37,14 @@ class Builder():
 
         self.load_database()
 
+        #print(self.database)
+
         self.autotiler = Autotiler()
 
     def set_regions(self):
         self.header = self.gui.pages['main'].regions[2] # Future-proof later
         self.world = self.gui.pages['main'].regions[0]
-        self.palette = self.gui.pages['main'].regions[4]
+        #self.palette = self.gui.pages['main'].regions[4]
 
     def select(self, item):
         self.selected = item
@@ -114,12 +116,12 @@ class Builder():
             if self.snap_to:
                 # Not sure if I want the sprite to snap to the center, or topleft
                 # Regardless, each sprite will likely need a config setup to establish offsets
-                if self.selected.group == "tile":
-                    self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
+                #if self.selected.group == "tile":
+                self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
                                                                 self.world.offset, scale=self.world.scale)
-                elif self.selected.group == "decor":
-                    self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
-                                                              self.world.offset, scale=self.world.scale)
+               #elif self.selected.group == "decor":
+                    #self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
+                                                              #self.world.offset, scale=self.world.scale)
             else:
                 self.selected.rect.topleft = pos
 
@@ -127,7 +129,7 @@ class Builder():
                 if not self.just_clicked or self.place_multiple:
                     self.just_clicked = True
                     if self.world.is_over:
-                        if not self.autotile: #band-aid soln for now
+                        if not self.autotile or not self.selected.autotilable: #band-aid soln for now
                             self.place_asset(pos)
                         elif self.autotile:
                             self.handle_autotile(pos)
@@ -138,10 +140,7 @@ class Builder():
             self.selected.update(screen)
         else:
             if state[2]:
-                if not self.autotile: # and autotilable
-                    self.remove_asset(pos)
-                elif self.autotile:
-                    self.remove_asset_autotile(pos)
+                self.remove(pos)
 
     def handle_autotile(self, pos):
 
@@ -153,14 +152,17 @@ class Builder():
         self.autotiler.update(tile_pos, chunk_id, self, self.selected.id, self.selected.group)
 
         for chunk_, tile_pos_, _ in cardinal_neighbors:
-            if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
-                self.autotiler.update(tile_pos_, chunk_, self, self.selected.id, self.selected.group)
+            tile = self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map)
+            if tile != None:
+                if tile["tile_ID"].split(";")[1] == self.selected.id.split(";")[1]: # check if in same spritesheet
+                    self.autotiler.update(tile_pos_, chunk_, self, self.selected.id, self.selected.group)
 
         for chunk_, tile_pos_, _ in diagonal_neighbors:
-            if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
-                self.autotiler.update(tile_pos_, chunk_, self, self.selected.id, self.selected.group)
+            tile = self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map)
+            if tile != None:
+                if tile["tile_ID"].split(";")[1] == self.selected.id.split(";")[1]: # check if in same spritesheet
+                    self.autotiler.update(tile_pos_, chunk_, self, self.selected.id, self.selected.group)
         
-
     def remove_asset_autotile(self, pos):
         # In later versions, condense this code from place asset
         tile_pos, chunk_id = self.world.get_tile_coord(pos)
@@ -176,13 +178,44 @@ class Builder():
             cardinal_neighbors, diagonal_neighbors = self.world.get_neighbors(tile_pos, chunk_id)
 
             for chunk_, tile_pos_, _ in cardinal_neighbors:
-                if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
-                    self.autotiler.update(tile_pos_, chunk_, self, id_, group)
+                tile = self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map)
+                if tile != None:
+                    if tile["auto?"]:
+                        self.autotiler.update(tile_pos_, chunk_, self, id_, group)
 
             for chunk_, tile_pos_, _ in diagonal_neighbors:
-                if self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map) != None:
-                    self.autotiler.update(tile_pos_, chunk_, self, id_, group)
+                tile = self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map)
+                if tile != None:
+                    if tile["auto?"]:
+                        self.autotiler.update(tile_pos_, chunk_, self, id_, group)
 
+    def remove(self, pos):
+       # In later versions, condense this code from place asset
+        tile_pos, chunk_id = self.world.get_tile_coord(pos)
+        tile_del = self.world.get_at(tile_pos, chunk_id, self.layer, self.current_map)
+
+        if tile_del != None:
+
+            id_ = tile_del["tile_ID"]
+            group = tile_del["group"]
+
+            self.world.remove_asset(tile_pos, self.layer, chunk_id, self.current_map)
+
+            if tile_del["auto?"]:
+
+                cardinal_neighbors, diagonal_neighbors = self.world.get_neighbors(tile_pos, chunk_id)
+
+                for chunk_, tile_pos_, _ in cardinal_neighbors:
+                    tile = self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map)
+                    if tile != None:
+                        if tile["auto?"]:
+                            self.autotiler.update(tile_pos_, chunk_, self, id_, group)
+
+                for chunk_, tile_pos_, _ in diagonal_neighbors:
+                    tile = self.world.get_at(tile_pos_, chunk_, self.layer, self.current_map)
+                    if tile != None:
+                        if tile["auto?"]:
+                            self.autotiler.update(tile_pos_, chunk_, self, id_, group)
 
 class BuilderUI():
     def __init__(self, builder):

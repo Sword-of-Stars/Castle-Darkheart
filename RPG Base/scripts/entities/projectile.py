@@ -7,6 +7,7 @@ class Projectile(Entity):
         Entity.__init__(self, speed, layer=1)
 
         self.pos = pygame.Vector2(pos)
+        self.rect = self.pos
         self.vel = pygame.Vector2(vel)
 
         self.img = img
@@ -40,6 +41,8 @@ class Projectile(Entity):
 
         else:
             self.move()
+            self.rect = self.pos
+
 
 
 class ProjectileCircle(Projectile):

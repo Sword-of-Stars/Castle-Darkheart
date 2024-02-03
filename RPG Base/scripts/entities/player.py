@@ -27,8 +27,8 @@ class Player(Entity):
         self.pos = self.rect.midbottom
 
         draw_pos = (self.rect.bottomleft[0], self.rect.topleft[1] + self.rect.height)
-        self.anims = {"idle":Animation(frames[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False), 
-                      "walk":Animation(frames[5:], self.fps, draw_pos, self.layer, loop=True, alive=False)}
+        self.anims = {"walk":Animation(frames[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False), 
+                      "idle":Animation(frames[5:], self.fps, draw_pos, self.layer, loop=True, alive=False)}
         
         # Speed and Movement
         self.speed = 6
@@ -115,7 +115,7 @@ class Player(Entity):
         return vx, vy
     
     def get_state(self):
-        if self.vel != [0,0]:
+        if self.vel == [0,0]:
             if self.state != "idle":
                 self.anims[self.state].stop()
             self.state = "idle" # There's some error with facing and the idle set of animations

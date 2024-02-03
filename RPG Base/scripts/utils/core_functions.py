@@ -45,8 +45,8 @@ def get_images(spritesheet_loc):
     """
 
     # RGB values for corner pieces
-    SECTION_START = (255,0,255)
-    SECTION_END = (63,72,204)
+    SECTION_START = (63,72,204)
+    SECTION_END = (255,174,201)
 
     start = []
     end = []

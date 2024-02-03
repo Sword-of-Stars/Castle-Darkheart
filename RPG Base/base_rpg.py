@@ -27,17 +27,17 @@ font = pygame.font.SysFont('ErasITC', 20)
 #===== Object Creation =====#
 player = Player(1000, 1000)
 
-wendigo = Wendigo(1000, 1000)
+#wendigo = Wendigo(1000, 1000)
 
 db = Database()
-world = Map("maps/meeplemouse", db, camera)
+world = Map("maps/done2", db, camera)
 
 #===== Main Game Loop =====#
 while True:
     clock.tick(60)
     camera.fill()
 
-    pygame.display.set_caption(str(clock.get_fps()))
+    pygame.display.set_caption(str(player.state))#str(clock.get_fps()))
 
     handle_events(player)
     
@@ -50,22 +50,25 @@ while True:
 
     for obstacle in world.obstacles:
         obstacle.update(camera)
+    
+    for asset in world.assets:
+        asset.update(camera)
 
     world.draw_world(camera)
 
     # Send to external function
     player.move_camera(camera, dx, dy)
-    wendigo.move_camera(camera, dx, dy)
+    #wendigo.move_camera(camera, dx, dy)
 
     # send to external function
     anim_handler.update(camera)
     proj_handler.update(camera)
 
-    for proj in proj_handler.projectile_list:
-        if circle_collide(proj.pos, proj.radius, wendigo.rect.center, wendigo.radius):
-            wendigo.take_hit(proj)
+    #for proj in proj_handler.projectile_list:
+        #if circle_collide(proj.pos, proj.radius, wendigo.rect.center, wendigo.radius):
+            #wendigo.take_hit(proj)
 
-    wendigo.update(camera, player, world.obstacles)
+    #wendigo.update(camera, player, world.obstacles)
 
     #pygame.draw.circle(camera.display, (255, 0,0), (100,100), 20)
 

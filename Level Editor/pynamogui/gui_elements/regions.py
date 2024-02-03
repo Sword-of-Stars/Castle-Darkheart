@@ -142,6 +142,8 @@ class ScrollBox(Region):
          self.speed = 10
          self.selected = None
 
+         self.get_images(config)
+
       def get_images(self, config):
          self.images = []
          self.load_images(config)
@@ -168,15 +170,15 @@ class ScrollBox(Region):
 
       def create_selectables(self, config):
          group = config['group']
-         offset = config['image_start_offset']#(20,-180)
-         vertical_spacing = config['vert_offset']#10
+         offset = (10,10)#config['image_start_offset']#(20,-180)
+         vertical_spacing = 10 #config['vert_offset']#10
          height = offset[1]
          new_list = []
 
          for index, img in enumerate(self.images):
             _id = f"ss;{self.path_id};{index}"
             self.builder.add_to_db(_id, img)
-            new = Selectable(img, group, hover_offset=[10,0], _id=_id)
+            new = Selectable(img, group, hover_offset=[10,0], _id=_id, autotilable=bool(config['auto?']))
 
             x = offset[0]
             y = height
@@ -213,7 +215,7 @@ class ScrollBox(Region):
                select_any = True
                if not img.just_selected:
                   img.just_selected = True
-                  self.builder.select(BuilderObject(img.img, img.group, img.id))
+                  self.builder.select(BuilderObject(img.img, img.group, img.id, img.autotilable))
                
             else:
                img.just_selected = False
@@ -410,7 +412,7 @@ class WorldBox(Region):
       # Create and place new object reference - doesn't need to be over-optimized
       new_obj = {"tile_ID":selected.id, "group":selected.group,
                   "z-order":layer,"pos":[px, py], "offset":[mx,my],
-                  "sum":0}
+                  "sum":0, "auto?":int(selected.autotilable)}
 
       chunk_id = f"{cx};{cy}"
 
@@ -419,12 +421,12 @@ class WorldBox(Region):
 
       current_map['chunks'][chunk_id].append(new_obj)
 
-   def place_asset_by_coord(self, chunk_id, tile_pos, layer, group, id_, current_map, snap_to=False, offset=[0,0]):
+   def place_asset_by_coord(self, chunk_id, tile_pos, layer, group, id_, current_map, snap_to=False, offset=[0,0], auto=False):
 
       # Create and place new object reference - doesn't need to be over-optimized
       new_obj = {"tile_ID":id_, "group":group,
                   "z-order":layer,"pos":tile_pos, "offset":[x*self.chunk_size for x in offset],
-                  "sum":0}
+                  "sum":0,"auto?":int(auto)}
       
       # Clear the map for new asset
       self.remove_asset(new_obj['pos'], new_obj['z-order'], chunk_id, current_map)
@@ -658,7 +660,7 @@ class StaticSelectBox(Region):
             select_any = True
             if not img.just_selected:
                img.just_selected = True
-               self.builder.select(BuilderObject(img.img, img.group, img.id))
+               self.builder.select(BuilderObject(img.img, img.group, img.id, autotilable=True))
             
          else:
             img.just_selected = False

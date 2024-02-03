@@ -1,7 +1,7 @@
 import pygame
 import json
 
-from scripts.entities.obstacle import ObstacleImage
+from scripts.entities.obstacle import ObstacleImage, Asset
 from scripts.utils.core_functions import load_json, world_to_screen
 
 class Map:
@@ -9,6 +9,8 @@ class Map:
         self.db = db # tile database for easy reference
         self.loaded_chunks = None
         self.obstacles = []
+        self.assets = []
+
         self.map_dict = {}
         self.config = load_json("maps/config")
 
@@ -29,22 +31,35 @@ class Map:
                     x, y = tile['pos']
                     
                     img = pygame.transform.scale_by(self.db.get_tile_image(tile['tile_ID']), (camera.scale))
+                    offset = self.db.get_tile_offset(tile['tile_ID'])
 
                     pos = world_to_screen(((x+cx*self.pixel_size)*self.chunk_size, 
                                            (y+cy*self.pixel_size)*self.chunk_size), 
                                            (camera.x, camera.y), (camera.scale))
+                    
+                    pos[0] += offset*self.pixel_size
 
-                    self.map_dict[key].append(ObstacleImage(*pos, img, tile["z-order"]))
+                    if tile['z-order'] == 1:
+                        self.map_dict[key].append(ObstacleImage(*pos, img, tile["z-order"]))
+                    else:
+                        self.map_dict[key].append(Asset(*pos, img, tile["z-order"]))
 
     def draw_world(self, camera):
         self.obstacles = [] # Later, update less frequently
+        self.assets = []
         visible_chunks = camera.get_visible_chunks()
 
         for chunk in visible_chunks: # Set to visible later, rough for now
             if chunk in self.map_dict:
                 for tile in self.map_dict[chunk]:
-                    self.obstacles.append(tile)
+                    if tile.layer == 1:
+                        self.obstacles.append(tile)
+                    else:
+                        self.assets.append(tile)
 
         for tile in self.obstacles:
+            camera.to_render(tile)
+
+        for tile in self.assets:
             camera.to_render(tile)
         #return self.obstacles

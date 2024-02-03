@@ -15,7 +15,7 @@ gui.init_builder()
 
 while True:
     screen.fill((0,0,0))
-    pygame.display.set_caption(f"Level Editor v1.1: {gui.current_page}")  
+    pygame.display.set_caption(f"Level Editor v1.2: {gui.current_page}")  
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

@@ -10,10 +10,19 @@ class Database():
 
     def load_images(self):
         for key, item in self.config.items():
-            images = [prep_image(x, 4) for x in get_images(item)]
+            images = [prep_image(x, 4) for x in get_images(item[0])]
             self.db[key] = images
 
     def get_tile_image(self, tile_id):
         sheet, index = tile_id.split(";")[1:]
 
         return self.db[sheet][int(index)]
+    
+    def get_tile_offset(self, tile_id):
+        sheet, index = tile_id.split(";")[1:]
+        offsets = self.config[sheet][1]
+
+        if index in offsets:
+            return offsets[index]
+
+        return 0

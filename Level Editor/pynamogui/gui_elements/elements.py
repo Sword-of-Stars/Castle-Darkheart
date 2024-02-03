@@ -164,13 +164,15 @@ class BuilderObject():
     Contains all necessary information to display an image to the screen 
     and create the map build file
     """
-    def __init__(self, img, group, _id=""):
+    def __init__(self, img, group, _id="", autotilable=False):
         self.id = _id
         self.group = group
         self.img = img.copy()
         self.img.set_alpha(128)
         self.disp_image = self.img.copy()
         self.rect = img.get_rect()
+
+        self.autotilable = autotilable
 
         #print(f"ID: {self.id}")
 
@@ -185,13 +187,15 @@ class BuilderObject():
         screen.blit(self.disp_image, self.rect.topleft)
 
 class Selectable():
-    def __init__(self, img, group, hover_offset=[0,0], _id="", ):
+    def __init__(self, img, group, hover_offset=[0,0], _id="", autotilable=False):
         self.id = _id
         self.img = img
         self.group = group
 
         self.rect = img.get_rect()
         self.orig_rect = self.rect.copy()
+
+        self.autotilable = autotilable
 
         self.pos = [0,0]
         self.selected = False

@@ -7,7 +7,7 @@ from scripts.utils.core_functions import blitRotateCenter
 class Animation():
     '''Base class for handling animated sprites (with keyframes)'''
 
-    def __init__(self, frames, framerate, pos, layer=0, static=False, loop=False, alive=False):
+    def __init__(self, frames, framerate, pos, layer=1, static=False, loop=False, alive=False):
         self.frames = frames
         self.frame = 0
         self.framerate = framerate
@@ -21,6 +21,8 @@ class Animation():
 
         self.layer = layer
 
+        self.rect = pygame.Vector2(pos)
+
 
     def draw(self, camera):
         camera.display.blit(pygame.transform.flip(self.frames[int(self.frame)%len(self.frames)], 
@@ -28,7 +30,7 @@ class Animation():
 
     def set_frame(self, frame):
         '''Access a specific frame in the animation sequence'''
-        self.frame = min(max(frame, 0), self.num_frames)
+        self.frame = min(max(frame, 0), len(self.frames))
 
     def set_pos(self, pos):
         self.pos = pos

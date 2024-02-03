@@ -33,7 +33,12 @@ class Autotiler:
         for chunk_, tile_pos_, direction in cardinal_neighbors:
             tile = builder.world.get_at(tile_pos_, chunk_, builder.layer, builder.current_map)
             if tile != None:
-                bitmap_sum += self.cardinal[direction]
+                if tile["tile_ID"].split(";")[1] == id.split(";")[1]:
+                    bitmap_sum += self.cardinal[direction]
+                else:
+                    for diag_tile in reversed(diagonal_neighbors):
+                        if direction in diag_tile[2]:
+                            diagonal_neighbors.remove(diag_tile)
             else:
                 for diag_tile in reversed(diagonal_neighbors):
                     if direction in diag_tile[2]:
@@ -42,7 +47,8 @@ class Autotiler:
         for chunk_, tile_pos_, direction in diagonal_neighbors:
             tile = builder.world.get_at(tile_pos_, chunk_, builder.layer, builder.current_map)
             if tile != None:
-                bitmap_sum += self.diagonal[direction]
+                if tile["tile_ID"].split(";")[1] == id.split(";")[1]:
+                    bitmap_sum += self.diagonal[direction]
 
         tile_index = self.autotile_conversion[bitmap_sum]
         spritesheet, index, _ = id.split(";")
@@ -55,6 +61,6 @@ class Autotiler:
 
         #print(bitmap_sum)
         builder.world.place_asset_by_coord(chunk, tile_pos, builder.layer, group, 
-                                        f"{spritesheet};{index};{tile_index}", builder.current_map, offset=[offset,0])
+                                        f"{spritesheet};{index};{tile_index}", builder.current_map, offset=[offset,0], auto=True)
 
         return tile_index
