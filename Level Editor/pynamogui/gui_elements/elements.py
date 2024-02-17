@@ -183,6 +183,9 @@ class BuilderObject():
     def set_pos(self, pos):
         self.rect.center = pos
 
+    def set_id(self, _id):
+        self.id = _id
+
     def update(self, screen):
         screen.blit(self.disp_image, self.rect.topleft)
 
@@ -209,6 +212,9 @@ class Selectable():
     def set_pos(self, pos):
         self.pos = pos
         self.rect.topleft = pos
+
+    def set_id(self, _id):
+        self.id = _id
 
     def is_over(self, pos, over_region):
         if self.rect.collidepoint(pos) and over_region:
@@ -356,3 +362,12 @@ class Checkbox(Region):
         self.display_image(screen)
         self.display_text(screen)
 
+class Trigger():
+    def __init__(self, _id, chunk, pos, size):
+        self._id = _id
+        self.chunk = chunk
+        self.size = size
+        self.pos = pos
+
+    def set_id(self, id):
+        self._id = id

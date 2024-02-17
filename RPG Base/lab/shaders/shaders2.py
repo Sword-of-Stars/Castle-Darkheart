@@ -11,7 +11,7 @@ ctx = moderngl.create_context()
 
 clock = pygame.time.Clock()
 
-img = pygame.image.load('ti.jpg')
+img = pygame.image.load('lab/shaders/ti.jpg')
 
 quad_buffer = ctx.buffer(data=array('f', [
     # position (x,y), uv coords (x,y)

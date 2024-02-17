@@ -256,6 +256,8 @@ class WorldBox(Region):
       self.SIZE = config['size']
       self.is_over = False
 
+      self.load_trigger_surface()
+
    def draw_grid(self, screen):
       l, r, u, d = self.dimensions
       world_origin = world_to_screen((0,0), self.offset, self.scale)
@@ -345,6 +347,11 @@ class WorldBox(Region):
    def set_grid(self, val):
       self.show_grid = val
 
+   def load_trigger_surface(self):
+      size = 64
+      self.trigger = pygame.Surface((size,size))
+      pygame.draw.rect(self.trigger, (20,240,120), (0,0,size,size))
+
    def draw_world(self, screen):
       # Get the current world
       m = self.builder.current_map['chunks']
@@ -388,6 +395,15 @@ class WorldBox(Region):
 
                img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
                screen.blit(img, pos)
+
+            if tile['group'] == 'trigger' and self.builder.show_trigger:
+               x, y = tile['pos']
+               pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+
+               pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
+
+               img = pygame.transform.scale_by(self.trigger, self.scale)
+               renderer.append((img, pos, tile["z-order"]))
          
       for item in sorted(renderer, key=lambda x:(x[2], x[1][1])): # sort based on z-order
          screen.blit(item[0], item[1])
@@ -695,3 +711,80 @@ class FolderNav(Region):
 
       if state[0]:
          self.get_items()
+
+class TriggerBox(Region):
+   def __init__(self, config, gui):
+      Region.__init__(self, *config['rect'])
+
+      self.gui = gui
+      self.builder = gui.builder
+
+      self.offset = [10,10]
+      self.vert_spacing = 10
+
+      self.text = ""
+      self.font = pygame.font.Font(None, 32) 
+
+
+      size = 64
+      self.img = pygame.Surface((size,size))
+      pygame.draw.rect(self.img, (20,240,120), (0,0,size,size))
+      self.disp_image = Selectable(self.img, "trigger", [10,0])
+      self.disp_image.set_pos([10,10])
+
+   def draw_symbol(self, pos, state, screen):
+      self.disp_image.update(pos, state, screen, True)
+
+   def handle_text(self, event):
+      if event.key == pygame.K_BACKSPACE: 
+         # get text input from 0 to -1 i.e. end. 
+         self.text = self.text[:-1] 
+
+      # Unicode standard is used for string 
+      # formation 
+         
+      elif event.key == pygame.K_RETURN: 
+         # get text input from 0 to -1 i.e. end. 
+         self.disp_image.set_id(self.text)
+      elif event.key == pygame.K_DELETE: 
+         # get text input from 0 to -1 i.e. end. 
+         self.text = ""
+         self.disp_image.set_id(self.text)
+      else: 
+         self.text += event.unicode
+
+   def clear_text(self):
+      self.text = ""
+
+   def select_selectables(self):
+      select_any = False
+      if self.disp_image.selected:
+         select_any = True
+         if not self.disp_image.just_selected:
+            self.disp_image.just_selected = True
+            self.builder.select(BuilderObject(self.disp_image.img, self.disp_image.group, 
+                                                         self.disp_image.id, autotilable=False))
+         
+      else:
+         self.disp_image.just_selected = False
+         
+      if not select_any:
+         if self.builder.selected != None:
+            del self.builder.selected
+            self.builder.select(None)
+
+   def draw_text_display(self, screen):
+      pygame.draw.rect(screen, (50, 125, 168), (10,100, 150,30))
+      txt = self.font.render(self.text, True, (255, 255, 255))
+      screen.blit(txt, (15,105))
+
+   def __str__(self):
+      return "trigger"
+
+   def update(self, pos, state, rel, screen):
+      self.draw(screen)
+      self.select_selectables()
+      self.draw_symbol(pos, state, screen)
+      self.draw_text_display(screen)
+
+      #print(self.text)

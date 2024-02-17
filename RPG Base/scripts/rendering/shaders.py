@@ -28,13 +28,19 @@ class ShaderContext():
         tex.write(surf.get_view('1'))
         return tex
 
-    def update(self, display):
+    def update(self, display, ui):
         self.time += 1
 
         frame_tex = self.surf_to_texture(display)
         frame_tex.use(0)
+
+        ui_tex = self.surf_to_texture(ui)
+        ui_tex.use(1)
+
         self.program['tex'] = 0
-        #self.program['time'] = 0#self.time
+        self.program['ui_surf'] = 1
+
+        #self.program['time'] = self.time
         self.render_object.render(mode=moderngl.TRIANGLE_STRIP)
         
         pygame.display.flip()
@@ -58,11 +64,59 @@ frag_shader = '''
 #version 330 core
 
 uniform sampler2D tex;
+uniform sampler2D ui_surf;
 
 in vec2 uvs;
 out vec4 f_color;
 
 void main() {
-    f_color = vec4(texture(tex, uvs).rg, texture(tex, uvs).b, 1.0);
+    // Calculate distance from center (assuming a centered vignette)
+    vec2 center = vec2(0.5, 0.5);
+    float distanceFromCenter = distance(uvs, center);
+
+    // Adjust radii based on texture dimensions (assuming square texture)
+    float textureSize = 1.0; // Replace with actual texture size if known
+    float innerRadius = 0.2 * textureSize;
+    float outerRadius = 0.7 * textureSize;
+
+    // Calculate vignette strength
+    float vignetteStrength = smoothstep(innerRadius, outerRadius, distanceFromCenter);
+
+    // Apply vignette to texture color
+    vec4 textureColor = texture(tex, uvs);
+    f_color = vec4(textureColor.rgb * (1.0 - vignetteStrength), textureColor.a);
+
+    // Don't apply vignette to UI
+    vec4 ui_color = texture(ui_surf, uvs);
+    if (ui_color.a > 0) {
+        f_color = ui_color;
+  }
 }
+'''
+'''
+frag_shader = 
+#version 330 core
+
+uniform sampler2D tex;
+
+in vec2 uvs;
+out vec4 f_color;
+
+void main() {
+    // Calculate distance from center (assuming a centered vignette)
+    vec2 center = vec2(0.5, 0.5);
+    float distanceFromCenter = distance(uvs, center);
+
+    // Adjust radii based on texture dimensions (assuming square texture)
+    float textureSize = 1.0; // Replace with actual texture size if known
+    float innerRadius = 0.2 * textureSize;
+    float outerRadius = 0.7 * textureSize;
+
+    // Calculate vignette strength
+    float vignetteStrength = smoothstep(innerRadius, outerRadius, distanceFromCenter);
+
+    // Apply vignette to texture color
+    vec4 textureColor = texture(tex, uvs);
+    f_color = vec4(textureColor.rgb * (1.0 - vignetteStrength), textureColor.a);
+  }
 '''

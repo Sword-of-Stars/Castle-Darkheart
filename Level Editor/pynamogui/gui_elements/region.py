@@ -31,3 +31,6 @@ class Region():
    def update(self, pos, state, rel, screen):
       if self.visible:
          self.draw(screen)
+
+   def __str__(self):
+      return "region"

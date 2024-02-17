@@ -3,7 +3,7 @@ import pygame
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.original_rect = pygame.Rect(x, y, 1000, 100)
+        self.original_rect = pygame.Rect(x, y, 100, 100)
         self.rect = self.original_rect.copy()
         self.color = (0, 255, 0)
 

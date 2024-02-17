@@ -4,6 +4,7 @@ from scripts.entities.entity import Entity
 from scripts.utils.core_functions import collision_list, get_images, prep_image
 from scripts.entities.sword import Sword
 from scripts.rendering.animation import Animation, AnimationFade
+from scripts.entities.shadow import Shadow
 
 class Player(Entity):
     def __init__(self, x, y):
@@ -46,8 +47,16 @@ class Player(Entity):
         self.mask = pygame.mask.from_surface(frames[0])
         self.mask = self.mask.to_surface()
         self.mask.set_colorkey((0,0,0))
-        
 
+        self.dash_whoosh = pygame.mixer.Sound("data/sound_effects/dash.wav")
+
+        self.shadow = Shadow([0,0,self.rect.width,16], 0.9)
+
+        self.health = 5
+
+    def set_HUD(self, HUD):
+        self.HUD = HUD
+        
     def handle_key_presses(self):
         # Set the player's speed to 0 (may not be necessary)
         self.vel = pygame.Vector2(0,0) 
@@ -65,6 +74,7 @@ class Player(Entity):
 
         if self.pressed["space"]:
             self.dash()
+       
 
     def get_facing(self, pos):
         """Have the player always facing the cursor"""
@@ -94,6 +104,11 @@ class Player(Entity):
         if self.dash_timer <= 0:
             self.dashing = True
             self.dash_timer = self.MAX_DASH_TIMER + self.dash_frames
+            self.dash_whoosh.play()
+
+    def take_damage(self, damage):        
+        self.health -= damage
+        self.HUD.flash(damage)
 
     def make_dash_fade(self, camera):
         '''Make the glowing white aftereffects of dashing'''
@@ -155,4 +170,5 @@ class Player(Entity):
         
         # Send to be handled at camera z order render layer, remove redundance and implement elegance
         self.sword.update(pos, camera)
+        self.shadow.update((self.rect.left, self.rect.bottom - 10), camera)
 

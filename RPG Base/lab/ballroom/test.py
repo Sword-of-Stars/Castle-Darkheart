@@ -8,7 +8,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
 length = 150
-k = 7
+k = 3
 
 t = 0
 center = [WIDTH//2, HEIGHT//2]
@@ -22,7 +22,7 @@ dt = .01
 
 while True:
     clock.tick(60)
-    screen.fill((0,0,0))
+    #screen.fill((0,0,0))
 
     t += dt
 
@@ -34,10 +34,17 @@ while True:
     # Update dancers
     for i, dancer in enumerate(dancers):
         dancer[1] = (dancer[1]+dt)%(2*math.pi)
-        dancer[0] = [center[0] + math.sin(k*dancer[1])*math.cos(dancer[1])*length, 
-                     center[1] + math.sin(k*dancer[1])*math.sin(dancer[1])*length]
+        
         dancer[2] = (dancer[2]+((i%2)*-1)*dt*6)%(2*math.pi)
         dancer[3] = (dancer[3]+((i%2)*-1)*dt*6)%(2*math.pi)
+
+        #x = length*math.cos(k*t+0.2)*math.sin(t)
+        #y = length*math.sin(k*t+0.2)*math.cos(t)
+        x = length*math.sin(k*t)*math.cos(t)
+        y = length*math.sin(k*t)*math.sin(t)
+
+        dancer[0] = [center[0] + x, 
+                     center[1] + y]
 
 
 
@@ -46,10 +53,7 @@ while True:
 
     for dancer in dancers:
         pygame.draw.circle(screen, (0,0,255), dancer[0], 10)
-        pygame.draw.circle(screen, (0,255,255), [dancer[0][0] + math.cos(dancer[2])*20, 
-                                                dancer[0][1] + math.sin(dancer[2])*20], 5)
-        pygame.draw.circle(screen, (0,255,255), [dancer[0][0] + math.cos(dancer[3])*20, 
-                                                dancer[0][1] + math.sin(dancer[3])*20], 5)
+       
 
 
 

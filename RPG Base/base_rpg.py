@@ -8,6 +8,7 @@ from scripts.rendering.animation import anim_handler
 from scripts.entities.projectile import proj_handler
 
 from scripts.entities.enemy import Wendigo
+from scripts.entities.HUD import HUD
 
 from scripts.utils.handle_events import handle_events
 from scripts.utils.core_functions import circle_collide
@@ -24,10 +25,15 @@ camera = Camera(0,0,WIDTH, HEIGHT)
 clock = pygame.time.Clock()
 font = pygame.font.SysFont('ErasITC', 20)
 
+#===== Mixer Initialization =====#
+pygame.mixer.init()
+
+
 #===== Object Creation =====#
 player = Player(1000, 1000)
 
-#wendigo = Wendigo(1000, 1000)
+wendigo = Wendigo(1500, 1000)
+hud = HUD(player, camera)
 
 db = Database()
 world = Map("maps/done2", db, camera)
@@ -37,12 +43,10 @@ while True:
     clock.tick(60)
     camera.fill()
 
-    pygame.display.set_caption(str(player.state))#str(clock.get_fps()))
+    pygame.display.set_caption(str(clock.get_fps()))
 
     handle_events(player)
     
-    
-
     pos = pygame.mouse.get_pos()
     player.update(world.obstacles, camera, pos)
 
@@ -54,23 +58,29 @@ while True:
     for asset in world.assets:
         asset.update(camera)
 
+    hud.update()
+
     world.draw_world(camera)
 
     # Send to external function
     player.move_camera(camera, dx, dy)
-    #wendigo.move_camera(camera, dx, dy)
+    wendigo.move_camera(camera, dx, dy)
 
     # send to external function
     anim_handler.update(camera)
     proj_handler.update(camera)
 
     #for proj in proj_handler.projectile_list:
-        #if circle_collide(proj.pos, proj.radius, wendigo.rect.center, wendigo.radius):
+       # if circle_collide(proj.pos, proj.radius, wendigo.rect.center, wendigo.radius):
             #wendigo.take_hit(proj)
 
-    #wendigo.update(camera, player, world.obstacles)
+    wendigo.update(camera, player, world.obstacles)
+    
 
     #pygame.draw.circle(camera.display, (255, 0,0), (100,100), 20)
 
     camera.draw_world()
+
+    wendigo.pathfind(player, world.obstacles, camera)
+
     camera.update()

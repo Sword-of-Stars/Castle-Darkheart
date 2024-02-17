@@ -23,19 +23,22 @@
         "function":"new_map", "self_args":[], "args":[64], "img_pad":4},
 
         {"ID":7,"type":"button", "image":"data/tile.png", "pos":[1010,10], "scale":2,"colorkey":[255,255,255],
-        "function":"change_visible_regions", "self_args":["gui"], "args":[[1],[11]], "img_pad":12},
+        "function":"change_visible_regions", "self_args":["gui"], "args":[[1,13],[11]], "img_pad":12},
 
         {"ID":8,"type":"button", "image":"data/asset.png", "pos":[1060,10], "scale":2,"colorkey":[255,255,255],
-        "function":"change_visible_regions", "self_args":["gui"], "args":[[11],[1]], "img_pad":12},
+        "function":"change_visible_regions", "self_args":["gui"], "args":[[11,13],[1]], "img_pad":12},
 
         {"ID":9,"type":"button", "image":"data/event.png", "pos":[1110,10], "scale":2,"colorkey":[255,255,255],
-        "function":"new_map", "self_args":[], "args":[64], "img_pad":12},
+        "function":"change_visible_regions", "self_args":["gui"], "args":[[1,11],[13]], "img_pad":12},
 
         {"ID":10,"type":"button", "image":"data/special.png", "pos":[1160,10], "scale":2,"colorkey":[255,255,255],
         "function":"new_map", "self_args":["gui"], "args":[64], "img_pad":12},
 
         {"ID":11,"type":"static", "rect":[0,0,300,652], "visible":0, "spritesheet":"data/tileset_04.png", "group":"tile","auto?":1},
 
-        {"ID":12,"type":"scroll", "rect":[0,0,300,652], "visible":0, "spritesheet":"data/floor_3.png", "group":"tile", "auto?":0}
+        {"ID":12,"type":"scroll", "rect":[0,0,300,652], "visible":0, "spritesheet":"data/floor_3.png", "group":"tile", "auto?":0},
+
+        {"ID":13,"type":"trigger", "rect":[0,0,300,652], "visible":0, "group":"trigger", "auto?":0}
+
     ]
 }

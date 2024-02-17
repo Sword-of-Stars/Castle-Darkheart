@@ -60,6 +60,8 @@ class Sword(Weapon):
 
         self.damage_hitboxes = []
 
+        self.swing_sound = pygame.mixer.Sound("data/sound_effects/sword_slash.wav")
+
 
     def load_sword_image(self):
         self.img = pygame.transform.scale_by(pygame.image.load("data/sword_4.png").convert_alpha(), 4)
@@ -111,6 +113,8 @@ class Sword(Weapon):
     def swing(self):
 
         if not self.is_swing:
+            self.swing_sound.play()
+
             self.is_swing = True
             self.active_smear = True
             self.smear_frame = 0

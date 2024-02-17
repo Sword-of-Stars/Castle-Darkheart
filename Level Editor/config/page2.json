@@ -17,6 +17,9 @@
     {"ID":5,"type":"checkbox", "rect":[200,350,40,40],"pos":[5,-5], "scale":1,"colorkey":[255,255,255],
         "attr":"place_multiple", "img_pad":4, "default":0, 
         "text":{"name":"pop", "size":50, "text":"Place Multiple", "color":[255, 255, 255], "anal":0, "pos":[60,-3]}},
+    {"ID":6,"type":"checkbox", "rect":[200,400,40,40],"pos":[5,-5], "scale":1,"colorkey":[255,255,255],
+        "attr":"show_trigger", "img_pad":4, "default":0, 
+        "text":{"name":"pop", "size":50, "text":"Show Trigger", "color":[255, 255, 255], "anal":0, "pos":[60,-3]}},
     {"ID":1,"type":"blank", "rect":[0,100,1200,649]}
     ]
 }

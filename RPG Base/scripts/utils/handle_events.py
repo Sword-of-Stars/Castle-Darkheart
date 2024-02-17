@@ -21,6 +21,10 @@ def handle_events(player):
             elif event.key == pygame.K_SPACE:
                 player.pressed["space"] = True
 
+            elif event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_d:
                 player.pressed["right"] = False

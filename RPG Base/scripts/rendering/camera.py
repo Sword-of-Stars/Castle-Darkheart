@@ -13,11 +13,21 @@ CHUNK_DIVISOR = 4
 def screen_to_chunk(pos, offset):
     return get_chunk_id(screen_to_world(pos, offset))
 
+def screen_to_tile(pos, offset):
+    return get_tile_pos(screen_to_world(pos, offset))
+
 def get_chunk_id(pos):
     x, y = pos
     #divisor = CHUNK_SIZE/SIZE
     divisor = CHUNK_DIVISOR
     return (x//divisor, y//divisor)
+
+def get_tile_pos(pos):
+    x, y = pos
+    #divisor = CHUNK_SIZE/SIZE
+    divisor = CHUNK_DIVISOR
+    return (x%4, y%4)
+
 
 def screen_to_world(screen_coords, offset, SIZE=SIZE, scale=1):
     screen_x, screen_y = screen_coords
@@ -60,6 +70,8 @@ class Camera():
         self.display = pygame.Surface((width, height))
         self.rect = self.display.get_rect(x=x, y=y)
 
+        self.ui_surf = pygame.Surface((width, height), pygame.SRCALPHA)
+
         self.ctx = ShaderContext()
 
     def fill(self):
@@ -75,6 +87,9 @@ class Camera():
         self.y += int(dy * self.speed)
 
         return dx, dy
+    
+    def pos_to_tile(self, pos):
+        return screen_to_chunk(pos, (self.x, self.y)), screen_to_tile(pos, (self.x, self.y))
 
     def get_visible_chunks(self):
        
@@ -110,5 +125,5 @@ class Camera():
             item.draw(self)
 
     def update(self):
-        self.ctx.update(self.display)
+        self.ctx.update(self.display, self.ui_surf)
 

@@ -30,14 +30,13 @@ class Builder():
         self.snap_to = True
         self.autotile = True
         self.show_grid = True
+        self.show_trigger = True
         self.place_multiple = True
         self.can_scale = True # Bugged for now :%
 
         self.just_clicked = False
 
         self.load_database()
-
-        #print(self.database)
 
         self.autotiler = Autotiler()
 
@@ -102,6 +101,12 @@ class Builder():
             self.layer = max(-10, self.layer) # Minimum layer is -10
             self.update_layer()
 
+
+        for _, region in self.gui.get_current_page().regions.items():
+            if str(region) == "trigger":
+                if region.visible:
+                    region.handle_text(event)
+
     def update_layer(self):
         self.header.modify_text('layer_num', self.layer)
 
@@ -131,7 +136,7 @@ class Builder():
                     if self.world.is_over:
                         if not self.autotile or not self.selected.autotilable: #band-aid soln for now
                             self.place_asset(pos)
-                        elif self.autotile:
+                        elif self.autotile and self.selected.group == "tile":
                             self.handle_autotile(pos)
                             
                 else:

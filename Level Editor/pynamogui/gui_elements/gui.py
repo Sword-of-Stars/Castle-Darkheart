@@ -1,6 +1,6 @@
 import pygame, sys
 
-from ..gui_elements.regions import WorldBox, ScrollBox, TextBox, ImageBox, BlankRegion, StaticSelectBox
+from ..gui_elements.regions import WorldBox, ScrollBox, TextBox, ImageBox, BlankRegion, StaticSelectBox, TriggerBox
 from ..gui_elements.elements import ImgButton_base, Checkbox
 from ..builder import Builder
 from ..misc.core_functions import load_json, get_mouse_info
@@ -19,6 +19,9 @@ class GUI:
 
     def set_screen(self, screen):
         self.screen = screen
+
+    def get_current_page(self):
+        return self.pages[self.current_page]
 
     def add_page(self, page):
         self.pages[page.name] = page
@@ -75,6 +78,8 @@ class Page():
                 self.regions[region["ID"]] = Checkbox(region, gui)
             elif region['type'] == 'static':
                 self.regions[region["ID"]] = StaticSelectBox(region, gui)
+            elif region['type'] == 'trigger':
+                self.regions[region["ID"]] = TriggerBox(region, gui)
             else:
                 print(f"'{region['type']}' is not a valid region type.")
 
