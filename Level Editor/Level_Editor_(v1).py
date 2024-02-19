@@ -4,7 +4,7 @@ import pynamogui as pyn
 
 pygame.init()
 WIDTH, HEIGHT = 1200, 750
-screen = pygame.display.set_mode((WIDTH, HEIGHT))#, flags=pygame.FULLSCREEN)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 gui = pyn.gui
 gui.set_screen(screen)

@@ -44,3 +44,6 @@ def handle_events(player):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 player.sword.swing()
+
+            #elif event.button == 3:
+                #player.sword.special()

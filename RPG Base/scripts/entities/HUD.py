@@ -23,6 +23,11 @@ class HUD():
 
         self.zeal = pygame.transform.rotate(prep_image(self.images[1], 6, colorkey=(255,255,255)), 270)
         self.zeal_offset = [20,65]
+        self.zeal_counter = pygame.transform.rotate(prep_image(self.images[2], 6, colorkey=(255,255,255)), 270)
+        self.zeal_width, self.zeal_height = self.zeal_counter.get_rect().size
+        self.zeal_subsurf = pygame.surface.Surface((self.zeal_width, self.zeal_height))
+        self.zeal_subsurf.set_colorkey((0,0,0))
+
 
         self.flash_timer_MAX = 6
         self.flash_timer = self.flash_timer_MAX # number of frames hearts turn white
@@ -53,6 +58,13 @@ class HUD():
 
     def draw_zeal(self):
         self.surf.blit(self.zeal, self.zeal_offset)
+
+        self.zeal_subsurf.fill((0,0,0))
+        disp_width = 24+(self.player.zeal/self.player.zeal_max)*(self.zeal_width-24)
+        self.zeal_subsurf = pygame.transform.scale(self.zeal_subsurf, (disp_width, self.zeal_height))
+        self.zeal_subsurf.blit(self.zeal_counter, (0,0))
+        self.surf.blit(self.zeal_subsurf, self.zeal_offset)
+        
 
     def update(self):
         self.surf.fill(pygame.Color(0,0,0,0))

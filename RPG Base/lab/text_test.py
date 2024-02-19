@@ -27,6 +27,8 @@ ts1 = font.render("Castle", True, color)
 ts2 = font.render("Darkheart", True, color)
 ts3 = font2.render("v1.0", True, color)
 
+pygame.image.save(ts1, "Castle.png")
+pygame.image.save(ts2, "Darkheart.png")
 
 #text_surface = pygame.transform.scale2x(text_surface)
 

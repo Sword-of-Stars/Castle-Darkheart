@@ -86,6 +86,8 @@ class AnimationFade(Animation):
         self.pos = pos
         self.duration = duration
         self.fade_rate = 255//duration
+
+        self.starting_alpha = starting_alpha
         self.alpha = starting_alpha
 
         self.camera_pos = camera_pos
@@ -93,15 +95,23 @@ class AnimationFade(Animation):
         self.alive = False
         self.kill_self = kill_self
 
+        anim_handler.add_animation(self)
+
     def get_pos(self, camera):
         d_cx = camera.x - self.camera_pos[0]
         d_cy = camera.y - self.camera_pos[1]
         return (self.pos[0]-d_cx, self.pos[1]-d_cy)
     
+    def track(self, camera):
+        self.camera_pos = (camera.x, camera.y)
+    
     def draw(self, camera):
         img = self.img
         img.set_alpha(self.alpha)
         camera.display.blit(img, self.get_pos(camera))
+
+    def reset_anim(self):
+        self.alpha = self.starting_alpha
 
     def kill(self):
         if self.kill_self:

@@ -46,6 +46,7 @@ class ShaderContext():
         pygame.display.flip()
         
         frame_tex.release()
+        ui_tex.release()
 
 vert_shader = '''
 #version 330 core

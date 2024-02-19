@@ -3,8 +3,8 @@ import pygame
 from scripts.entities.entity import Entity
 
 class Projectile(Entity):
-    def __init__(self, pos, speed, vel, lifetime=10000, img=None, origin=None):
-        Entity.__init__(self, speed, layer=1)
+    def __init__(self, pos, speed, vel, lifetime=10000, img=None, origin=None, layer=4):
+        Entity.__init__(self, speed, layer=layer)
 
         self.pos = pygame.Vector2(pos)
         self.rect = self.pos
@@ -28,11 +28,20 @@ class Projectile(Entity):
     def kill(self):
         del self
 
-    def move(self):
-        # You can add pygame vectors, interesting to look into
-        self.pos += self.vel
+    def unalive(self):
+        self.is_alive = False
 
-    def update(self):
+    def move(self, camera, dx, dy):
+        # You can add pygame vectors, interesting to look into
+        self.pos += self.vel*self.speed
+        self.pos[0] -= int(dx * camera.speed)*0.5
+        self.pos[1] -= int(dy * camera.speed)*0.5
+
+
+        #self.rect[0] = self.pos[0] - int(dx * camera.speed)
+        #self.rect[1] = self.pos[1] -int(dy * camera.speed)
+
+    def update(self, camera, dx, dy):
 
         self.lifetime -= 1
 
@@ -40,21 +49,29 @@ class Projectile(Entity):
             self.is_alive = False
 
         else:
-            self.move()
-            self.rect = self.pos
+            self.move(camera, dx, dy)
 
 
 
 class ProjectileCircle(Projectile):
-    def __init__(self, pos, speed, vel, radius, lifetime=10000, img=None, origin=None):
-        Projectile.__init__(self, pos, speed, vel, lifetime, img, origin)
+    def __init__(self, pos, speed, vel, radius, lifetime=10000, img=None, origin=None, layer=4, damage=1):
+        Projectile.__init__(self, pos, speed, vel, lifetime, img, origin, layer=layer)
 
         self.radius = radius
+        self.damage = damage
+
+        if self.img != None:
+            self.rect = self.img.get_rect()
 
     def draw(self, camera):
         # in future, reassign functions rather than a check every loop
         if self.img != None:
-            pygame.draw.circle(camera.display, (255,0,0), self.pos, self.radius)
+            pos = (self.pos[0]-self.rect.width//2, self.pos[1]-self.rect.height//2)
+            camera.display.blit(self.img, pos)
+
+        #elif self.img == None:
+           # pygame.draw.circle(camera.display, (255,0,0), self.pos, self.radius)
+
 
 
 class ProjectileHandler():
@@ -64,17 +81,23 @@ class ProjectileHandler():
     def add_projectile(self, projectile):
         self.projectile_list.append(projectile)
 
-    def update(self, camera):
+    def update(self, camera, dx, dy, obstacles):
         # reversed iteration for efficient removal
 
         for projectile in reversed(self.projectile_list):
-            projectile.update()
+            projectile.update(camera, dx, dy)
 
             if not projectile.is_alive:
                 self.projectile_list.remove(projectile)
                 projectile.kill()
 
             else:
-                camera.to_render(projectile)
+                for obstacle in obstacles:
+                    if obstacle.rect.collidepoint(projectile.pos):
+                        self.projectile_list.remove(projectile)
+                        projectile.kill()
+                        break
+                else:
+                    camera.to_render(projectile)
 
 proj_handler = ProjectileHandler()

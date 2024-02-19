@@ -9,6 +9,7 @@ class Entity(pygame.sprite.Sprite):
 
         self.vel = pygame.Vector2(0,0)
         self.speed = speed
+        self.MAXSPEED = speed
         self.layer = layer
 
 

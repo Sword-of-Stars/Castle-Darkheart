@@ -2,7 +2,7 @@ import pygame, math
 from PIL import Image
 
 from scripts.utils.core_functions import get_images, blitRotate, blitRotateCenter, angle_to, prep_image
-from scripts.rendering.animation import AnimationRotation
+from scripts.rendering.animation import AnimationRotation, AnimationFade
 from scripts.entities.projectile import ProjectileCircle
 
 # TODO: Move set_pos functionality to utils, it's kinda useful
@@ -61,12 +61,47 @@ class Sword(Weapon):
         self.damage_hitboxes = []
 
         self.swing_sound = pygame.mixer.Sound("data/sound_effects/sword_slash.wav")
+        self.hit_sound = pygame.mixer.Sound("data/sound_effects/hit_02.wav")
 
+
+        self.special_timer_max = 100
+        self.special_timer = 0
+
+        self.shield = prep_image(get_images("data/shield.png")[0], 4)
+        self.shield.set_alpha(150)
+        self.shield_rect = self.shield.get_rect()
+        pos = (self.player.rect.x - self.shield_rect.width, self.player.rect.y - self.shield_rect.height)
+        self.shield_anim = AnimationFade(self.shield,pos,self.special_timer_max, (0,0), 150, layer=self.player.layer+1, kill_self=True)
 
     def load_sword_image(self):
         self.img = pygame.transform.scale_by(pygame.image.load("data/sword_4.png").convert_alpha(), 4)
         self.img.set_colorkey((255,255,255))
         self.rect = self.img.get_rect()
+
+    def hit(self):
+        self.hit_sound.play()
+        self.player.gain_zeal()
+
+    def special(self):
+       
+        if self.special_timer <= 0:
+            self.special_timer = self.special_timer_max
+
+            pos = (self.player.rect.x - self.shield_rect.width, self.player.rect.y - self.shield_rect.height)
+            self.shield_anim = AnimationFade(self.shield,pos,self.special_timer_max, (0,0), 150, layer=self.player.layer+1, kill_self=True)
+
+            self.shield_anim.set_pos(self.player.pos)
+            self.shield_anim.play()
+
+    def handle_special_cooldown(self, camera):
+        
+        #self.shield_anim.reset_anim()
+        if self.special_timer > 0:
+            self.shield_anim.set_pos((self.player.rect.x - self.shield_rect.width//2 + self.player.rect.width//2, 
+                                      self.player.rect.y - self.shield_rect.height//2 - self.player.rect.height//4))
+            self.shield_anim.track(camera)
+
+            self.special_timer -= 1
 
     def render_over(self):
         """
@@ -128,7 +163,7 @@ class Sword(Weapon):
 
             # Tweak lifetime
             pos = self.set_pos(-self.smear_angle, 90)
-            ProjectileCircle(pos, 0, (0,0), self.damage_radius, lifetime=12, origin=self.player)
+            ProjectileCircle(pos, 0, (0,0), self.damage_radius, lifetime=12, origin=self.player, damage=40)
 
     def reset_swing(self):
 
@@ -157,7 +192,7 @@ class Sword(Weapon):
         #self.render_over()
         self.set_angle(pos)
         self.handle_swing()
+        self.handle_special_cooldown(camera)
 
         camera.to_render(self)
-
 

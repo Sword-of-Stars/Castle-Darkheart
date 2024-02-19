@@ -22,6 +22,8 @@ class ImageBox(Region):
 
       self.images = [{'img': prep_image(pygame.image.load(i['path']), i['scale']), 'is_active': False, **i} 
                      for i in config['images']]
+      
+      print(self.images)
 
       self.movable = config['movable']
       self.set_rects()
@@ -51,11 +53,26 @@ class ImageBox(Region):
             args = [rgetattr(self, arg) for arg in img['self_args']]
             for i in img['args']:
                args.append(i)
-            img['args'] = args
+            img['use_args'] = args
 
          else:
             print(f"Function {img['function']} not found")
             img['function'] = None
+
+   def update_args(self):
+      def rgetattr(obj, attr, *args):
+         def _getattr(obj, attr):
+            return getattr(obj, attr, *args)
+         return functools.reduce(_getattr, [obj] + attr.split('.'))
+      
+      for img in self.images:
+         args = [rgetattr(self, arg) for arg in img['self_args']]
+         for i in img['args']:
+            args.append(i)
+         img['use_args'] = args
+
+
+
 
    def draw_images(self, pos, state, screen):
       for image in self.images:
@@ -66,7 +83,8 @@ class ImageBox(Region):
             if state[0] and not image['is_active']:
                image['is_active'] = True
                if image['function'] != None:
-                  image['function'](*image['args'])
+                  self.update_args() #ugly code
+                  image['function'](*image['use_args'])
             elif not state[0]:
                image['is_active'] = False
          else:

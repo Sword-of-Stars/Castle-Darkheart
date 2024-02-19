@@ -97,7 +97,7 @@ left_hand_pos = razak_rect.center
 attack = False
 
 attack_reach = 60
-attack_curve = [12, 5, 22, 22] # windup, approach, impact, recede
+attack_curve = [12, 5, 10, 22] # windup, approach, impact, recede
 attack_timer_max = sum(attack_curve)
 attack_timer = attack_timer_max
 

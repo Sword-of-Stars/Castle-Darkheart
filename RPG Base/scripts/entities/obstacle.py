@@ -7,6 +7,8 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect = self.original_rect.copy()
         self.color = (0, 255, 0)
 
+        self.group = "obstacle"
+
     def update(self, camera):
         self.rect.x = self.original_rect.x - camera.x
         self.rect.y = self.original_rect.y - camera.y
@@ -22,6 +24,9 @@ class ObstacleImage(pygame.sprite.Sprite):
 
         self.layer = layer
         self.img = img
+
+        self.group = "obstacle"
+
     
     def draw(self, camera):
         camera.display.blit(self.img, self.rect)
@@ -39,6 +44,8 @@ class Asset(pygame.sprite.Sprite):
 
         self.layer = layer
         self.img = img
+
+        self.group = "asset"
     
     def draw(self, camera):
         camera.display.blit(self.img, self.rect)

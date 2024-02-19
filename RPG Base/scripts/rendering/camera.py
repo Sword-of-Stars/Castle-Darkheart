@@ -1,4 +1,5 @@
 import pygame
+import random
 
 from scripts.rendering.shaders import ShaderContext
 
@@ -68,15 +69,30 @@ class Camera():
         self.render_list = []
 
         self.display = pygame.Surface((width, height))
+        self.new_display = pygame.Surface((width, height))
+
         self.rect = self.display.get_rect(x=x, y=y)
 
         self.ui_surf = pygame.Surface((width, height), pygame.SRCALPHA)
 
         self.ctx = ShaderContext()
 
+        self.screen_shake = False
+        self.screen_shake_x = []
+        self.screen_shake_y = []
+
     def fill(self):
         self.render_list = []
         self.display.fill((0,0,0))
+
+    def set_screen_shake(self, val, magnitude=[3,1]):
+        self.screen_shake = True
+        self.screen_shake_x = [random.randint(-magnitude[0], magnitude[0]) for x in range(val//2)]
+        self.screen_shake_x + self.screen_shake_x[::-1]
+
+        self.screen_shake_y = [random.randint(-magnitude[1], magnitude[1]) for x in range(val//2)]
+        self.screen_shake_y + self.screen_shake_y[::-1]
+
 
     def move(self, player):
         dx = player.rect.x - self.width/2
@@ -125,5 +141,11 @@ class Camera():
             item.draw(self)
 
     def update(self):
-        self.ctx.update(self.display, self.ui_surf)
+        pos = (0,0)
+        if self.screen_shake_x != [] and self.screen_shake_x != []:
+            pos = (self.screen_shake_x.pop(), self.screen_shake_y.pop())
+        
+        self.new_display.blit(self.display, pos)
+
+        self.ctx.update(self.new_display, self.ui_surf)
 
