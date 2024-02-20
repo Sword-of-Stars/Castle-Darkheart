@@ -47,3 +47,10 @@ unlikely), I don't know.
 It's kind of nice really. These game devlogs are my sort of journal, a chronicle of the time I've spent working on them. I kind of like this. :)
 
 2-3-2024
+
+2-20-2024
+Over President's Day Weekend, I made a lot of progress. V and I sat on the CCQ 3 days in a row, and had a great time. I fleshed out the level editor, base mechanics, music design, trigger system, UI, screen shake, particle effects, enemy behaviors, and much more. I'm really happy with how most of it turned out; it's pretty neat!
+
+I still have some things left TODO.
+1) Create config files for world, player, weapons, enemies (no more magic values)
+2) Add features to level editor (cellular automata)

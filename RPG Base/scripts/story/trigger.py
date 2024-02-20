@@ -16,4 +16,4 @@ class Trigger():
         self.rect.y = self.original_rect.y - camera.y
 
     def pass_event(self):
-        pass
+        return self.id

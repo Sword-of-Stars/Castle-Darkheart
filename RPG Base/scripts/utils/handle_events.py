@@ -1,6 +1,6 @@
 import pygame, sys
 
-def handle_events(player):
+def handle_events(player, txt):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -20,6 +20,7 @@ def handle_events(player):
                 player.most_recent_press["vertical"] = "down"
             elif event.key == pygame.K_SPACE:
                 player.pressed["space"] = True
+                txt.next()
 
             elif event.key == pygame.K_ESCAPE:
                 pygame.quit()
