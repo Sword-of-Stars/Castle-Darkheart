@@ -1,5 +1,5 @@
 # Castle-Darkheart
-My indie pixel-art dungeon-crawler RPG/
+My indie pixel-art dungeon-crawler RPG
 ![image](/RPG_Base/data/menu_images/composite_menu.png)
 
 ## Story
