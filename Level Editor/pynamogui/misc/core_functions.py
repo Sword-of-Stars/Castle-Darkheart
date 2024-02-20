@@ -46,8 +46,6 @@ def get_chunk_id(pos):
     divisor = CHUNK_DIVISOR
     return f"{x//divisor};{y//divisor}"
 
-def screen_to_chunk2(pos, offset):
-    return get_chunk_id2(screen_to_world(pos, offset))
 
 def get_mouse_info():
     rel = pygame.mouse.get_rel()

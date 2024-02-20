@@ -19,7 +19,7 @@ class Builder():
         self.z_order = 0
 
         self.database = {}
-        self.current_map = {"name":"The Golden Plains", "chunks":{"0;0":[]}} # Save maps to this location/file
+        self.current_map = {"name":"The Blight", "chunks":{"0;0":[]}} # Save maps to this location/file
         self.current_map_path = "maps"
 
         self.gui = gui
@@ -33,6 +33,9 @@ class Builder():
         self.show_trigger = True
         self.place_multiple = True
         self.can_scale = True # Bugged for now :%
+        self.place_large = True
+
+        self.brush_size = 1
 
         self.just_clicked = False
 
@@ -53,8 +56,16 @@ class Builder():
         else:
             self.update_selected("None")
 
+    def change_brush_size(self, delta):
+        self.brush_size = max(0,int(self.brush_size+delta))
+        self.update_brush_size()
+
     def place_asset(self, pos):
         self.world.place_asset(pos, self.layer, self.selected, 
+                               self.current_map, snap_to=self.snap_to)
+        
+    def place_asset_by_coord(self, chunk, tile_pos):
+        self.world.place_asset_by_coord(chunk, tile_pos, self.layer, self.selected.group, self.selected.id, 
                                self.current_map, snap_to=self.snap_to)
         
     def remove_asset(self, pos):
@@ -113,46 +124,57 @@ class Builder():
     def update_selected(self, txt):
         self.header.modify_text('selected_txt', txt)
 
+    def update_brush_size(self):
+        self.header.modify_text('brush_size', self.brush_size)
+
     def update(self, pos, state, screen):
         if self.selected != None:
             self.selected.scale(self.world.scale)
             x, y = self.world.get_grid_coord(pos)
 
+            # Set the position of the preview
             if self.snap_to:
-                # Not sure if I want the sprite to snap to the center, or topleft
-                # Regardless, each sprite will likely need a config setup to establish offsets
-                #if self.selected.group == "tile":
                 self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
                                                                 self.world.offset, scale=self.world.scale)
-               #elif self.selected.group == "decor":
-                    #self.selected.rect.topleft = world_to_screen((x*self.world.SIZE, y*self.world.SIZE), 
-                                                              #self.world.offset, scale=self.world.scale)
             else:
                 self.selected.rect.topleft = pos
 
+            # Later, port to event
             if state[0]:
                 if not self.just_clicked or self.place_multiple:
                     self.just_clicked = True
                     if self.world.is_over:
-                        if not self.autotile or not self.selected.autotilable: #band-aid soln for now
-                            self.place_asset(pos)
-                        elif self.autotile and self.selected.group == "tile":
-                            self.handle_autotile(pos)
-                            
+                        if not self.place_large: # allows one to place multiple assets
+                            if not self.autotile or not self.selected.autotilable: #band-aid soln for now
+                                self.place_asset(pos)
+                            elif self.autotile and self.selected.group == "tile":
+                                tile_pos, chunk_id = self.world.get_tile_coord(pos)
+                                self.handle_autotile(tile_pos, chunk_id)    
+                        else:
+                            tiles = self.world.get_range_from_tile(pos, radius=self.brush_size)  
+
+                            if not self.autotile or not self.selected.autotilable: #band-aid soln for now
+                                self.place_asset(pos)
+                                for chunk, tile_pos in tiles:
+                                    self.place_asset_by_coord(chunk, tile_pos)
+                            elif self.autotile and self.selected.group == "tile":
+                                for chunk, tile_pos in tiles:
+                                    self.handle_autotile(tile_pos, chunk)
                 else:
                     self.just_clicked = False
         
             self.selected.update(screen)
         else:
             if state[2]:
-                self.remove(pos)
+                tiles = self.world.get_range_from_tile(pos, radius=self.brush_size)
+                for chunk, tile_pos in tiles: 
+                    self.remove(tile_pos, chunk)
 
-    def handle_autotile(self, pos):
+    def handle_autotile(self, tile_pos, chunk_id):
 
-        tile_pos, chunk_id = self.world.get_tile_coord(pos)
         cardinal_neighbors, diagonal_neighbors = self.world.get_neighbors(tile_pos, chunk_id)
 
-        self.place_asset(pos)
+        self.place_asset_by_coord(chunk_id, tile_pos)
 
         self.autotiler.update(tile_pos, chunk_id, self, self.selected.id, self.selected.group)
 
@@ -194,9 +216,9 @@ class Builder():
                     if tile["auto?"]:
                         self.autotiler.update(tile_pos_, chunk_, self, id_, group)
 
-    def remove(self, pos):
+    def remove(self, tile_pos, chunk_id):
        # In later versions, condense this code from place asset
-        tile_pos, chunk_id = self.world.get_tile_coord(pos)
+        #tile_pos, chunk_id = self.world.get_tile_coord(pos)
         tile_del = self.world.get_at(tile_pos, chunk_id, self.layer, self.current_map)
 
         if tile_del != None:

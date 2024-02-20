@@ -2,6 +2,8 @@ import pygame, sys
 
 import pynamogui as pyn
 
+# TODO: Make preset of floor, tile (autopopulate), wall, with dynamic size
+
 pygame.init()
 WIDTH, HEIGHT = 1200, 750
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -23,12 +25,19 @@ while True:
 
         elif event.type == pygame.MOUSEWHEEL:
             gui.handle_scroll(event)
+           
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 gui.exit()
+            elif event.key == pygame.K_KP_MINUS or event.key == pygame.K_MINUS:
+                print("LOLO")
+                gui.builder.change_brush_size(-1)
+            elif event.key == pygame.K_KP_PLUS or event.key == pygame.K_PLUS:
+                gui.builder.change_brush_size(1)
 
             gui.handle_button(event)
+
 
     gui.update()
 

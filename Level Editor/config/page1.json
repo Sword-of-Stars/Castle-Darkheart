@@ -9,7 +9,9 @@
              {"name":"mode", "size":30, "text":"Mode", "color":[255, 255, 255], "anal":0, "pos":[100,10]},
              {"name":"mode_txt", "size":30, "text":"", "color":[255, 255, 255], "anal":0, "pos":[140,10]},
              {"name":"selected", "size":30, "text":"Selected:", "color":[255, 255, 255], "anal":0, "pos":[190,10]},
-             {"name":"selected_txt", "size":30, "text":"None", "color":[255, 255, 255], "anal":0, "pos":[280,10]}
+             {"name":"selected_txt", "size":30, "text":"None", "color":[255, 255, 255], "anal":0, "pos":[280,10]},
+             {"name":"brush", "size":30, "text":"Brush Size:", "color":[255, 255, 255], "anal":0, "pos":[344,10]},
+             {"name":"brush_size", "size":30, "text":"1", "color":[255, 255, 255], "anal":0, "pos":[440,10]}
             ]},
 
         {"ID":3,"type":"image", "rect":[0,651,300,100], "movable":1, "images":

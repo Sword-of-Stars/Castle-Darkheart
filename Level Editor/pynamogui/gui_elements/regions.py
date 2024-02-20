@@ -267,7 +267,7 @@ class WorldBox(Region):
       self.scale = 1
       self.pre_scale = 1
       self.scroll_speed = 0.1
-      self.scroll_min = 0.25
+      self.scroll_min = 0.125
       self.scroll_max = 4
 
       self.dimensions = [1000, 1000, 1000, 1000]
@@ -330,7 +330,7 @@ class WorldBox(Region):
 
    def get_grid_coord(self, pos):
       x, y = screen_to_world(pos, self.offset, scale=self.scale)
-      return (x//self.SIZE,y//self.SIZE)
+      return (int(x//self.SIZE),int(y//self.SIZE))
    
    def get_chunk_from_grid(self, tile_pos):
       x, y = tile_pos
@@ -537,11 +537,25 @@ class WorldBox(Region):
       p1 = self.get_grid_coord(pos1)
       p2 = self.get_grid_coord(pos2)
 
-      topleft = [min(p1[0], p2[0]), max(p1[1], p2[1])]
-      botright = [max(p1[0], p2[0]), min(p1[1], p2[1])]
+      topleft = [int(min(p1[0], p2[0])), int(max(p1[1], p2[1]))]
+      botright = [int(max(p1[0], p2[0])), int(min(p1[1], p2[1]))]
 
       return topleft, botright
    
+   def get_range_from_tile(self, pos, radius=4):
+      wx, wy = screen_to_world(pos, self.offset, self.scale)
+
+      tx, ty = int(wx//64), int(wy//64)
+      
+      tiles = []
+      for x in range(tx-radius, tx+radius + 1):
+         for y in range(ty-radius, ty+radius+1):
+            tile_pos = [self.get_chunk_from_grid((x,y)),[x%4,y%4]]
+            tiles.append(tile_pos)
+
+      #print(tiles)
+      return tiles
+
    def get_tiles_in_range(self, tl, br):
       c1 = self.get_chunk_from_grid(tl)
       c2 = self.get_chunk_from_grid(br)
