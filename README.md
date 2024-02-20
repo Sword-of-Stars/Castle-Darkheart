@@ -9,7 +9,7 @@ Venture through the perilous Castle Darkheart in this dungeon-crawler RPG. Battl
 (in progress)
 
 ## Framework
-Castle Darkheart uses Pynamo, a custom framework in Pygame. It's built around my own workflow, so feel free to tinker with it, but it's not primary intended for distribution. 
+Castle Darkheart uses Pynamo, a custom framework in Pygame. It's built around my own workflow, so feel free to tinker with it, but it's not primarily intended for distribution. 
 
 ## Credits
 * Thanks to JVB226 for his incredible cover artwork!\
