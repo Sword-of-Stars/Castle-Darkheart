@@ -1,0 +1,205 @@
+7-2-23:
+Capitan's Log. I need to implement a more straightforward system for managing hovering,
+selecting, and avoiding spamming function calls. Additionally, research into the nature 
+of anonymous (lambda) functions will be helpful in simplifying/flexibilizing function calls
+I envision the 'Builder' class tp handle selecting of things
+I want to make a 'hover, click, call' object to handle things like the mouse hovering over
+buttons, images, etc. so that I can reduce redundant code
+I feel like all this work will pay off eventually, but this version of pynamo-gui is really rough
+I'm paying the man now, eating my vegetables, and the game will be all the better for it
+
+7-3-23:
+Making a 'Selectable' class through which I can create selectable objects (like images, text)
+and handle hover, selection (single)
+
+7-8-23:
+AIRBORNE! I finished the layer selection system, selectable objects class, and the builderElement.
+Future work will involve the final steps of:
+1) Determining how to store maps, image data, and the like (placeholder ID string rn)
+2) Actually storing the map to a JSON and being able to read it
+3) Adding functionality to the text selection stuff and lambda-ing the relevant functions
+4) Add builder functionality (snap-to, grid view, manage world size)
+5) Add functions (and a constant user config file) to make the program even more flexible
+
+Once the level editor is finished, I want to make art for a mock-up of a sample world. 
+World design and art design will help increase motivation, solidify the vision, and take me 
+from abstract code to a concrete vision.
+
+Here's the plan:
+1) MVP - Escape from Castle Darkheart
+ # Tilesets: 1
+ SFX? Yes
+ # Enemies: 5-10
+ 
+ This MVP will follow the holy knight as he ventures into Castle Darkheart, a
+ shaded citadel of evil. He must defeat the Mad King, an insane wizard whose mood 
+ changes with the phases of the moon (lore, not mechanic, yet ;)). 
+ Emphasis will be placed on a) environment design, b) making enemies feel intelligent, and c) making
+ player movement/combat feel good. Emphasis will not be placed on story, UI, and enemy variation (though 
+ this interest may conflict with b&c). 
+
+ Nitty-Gritty
+ No more than 5 soundtracks will be made (menu, main game (2), combat, boss battle)
+ At this time, shaders will not be implemented, though I can make the game shader-compatible
+ Tools can be generated as needed; do not worry about them slowing down the design process, as
+ they provide long-term benefit
+
+ Deadline: Spring 2024
+
+2) MVP2 - Escape from Castle Darkheart - Toil and Trouble
+ Focus is now on story, enemy design, boss battle, and multiplayer, so I can play with Sarah!
+ Introduces a lizard alchemist companion (Ignatius, Alchemarus, Draconius, Seraphimix, Pyrothius, Aureliano)
+ This will be more fun, engaging, and artsy, but I need to get a working prototype before I begin experimenting
+
+ BUGS:
+ 1) Scrolling the images up and clicking on the text allows me to select the tree
+
+ FEATURES:
+ 1) Add transparency for lower layers
+ 2) Add autotiler
+ 3) Add option to view chunk borders
+
+ ENVISION:
+ 1) Build a more robust image info system, seperating tileset images from decor from lighting
+
+7-10-23:
+AIRBORNE! Got let out early, which is nice. I'm waiting for customer service for SATO, which hopefully doesn't take 
+much longer. I've already been waiting 20 minutes.
+
+Fixed bug #1 from last week (scrolling issue) and want to finish level editor tonight. Let's see how it goes.
+
+7-17-23:
+SCREW AIRBORNE. They didn't get a freaking plane for us to jump out of, and now I'm sitting in a library, miserable, 
+sick, and mom's crying because I might not come home. I'll be pi$$ed off if that happens, and I'm quite anxious
+to see how this all goes down. It's kind of funny; these devlogs are kind of becoming a personal journal. 
+
+Enough meta, on with the content.
+
+I implemented a "settings" page for toggling autotile, grid view, and snapping. Useful, good progress. 
+I also fixed up some other bugs/issues of user comfort, such as item clicking, opening new spritesheets, 
+and more. I'll try to also create an actual level creation system today, but IDK if that'll happen.
+What I should start doing is testing the memory requirements and implementations of my proposed chunk system.
+
+Addition to future work list:
+1) Encoding save files to prevent player manipulation/tinkering. Is there a way to lock files?
+2) Does drawing at a smaller resolution then making it bigger lose out on smoothness of movement?
+3) Easy way to make things bounce (stretch and shrink) and outline items
+
+7-18-23:
+I chose to leave on Friday so I still get part of a summer, still pissed off. Hopefully, the memo gets pushed through, 
+but knowing my luck, everyone else will get their wings, and I won't. Hopefully this isn't a choice I end up regretting.
+
+The order in which functions and their respective arguments are processed are annoying and finnicky to work with. I should 
+create a universalized function management system alongside a better selectable object system. Shouldn't take too long to 
+implement, but it might be a while. 
+BAD: I made the world size a magic number, 64
+
+7-19-23:
+I need to fully document and figure out how to use world_to_screen and screen_to_world
+I've been tearing my hair out about this one chunk-rendering bug. If I get it figured out this weekend, the soul
+of my game should be good, so long as this system proves reliable and efficient.
+
+I'm also slightly relieved about ZC situtation. I asked if I could take her out to dinner, she said yes, then
+invited somebody else as well. I find this laughable and a terrific excuse to remove her as an option. The triple
+affirmative has been achieved. This is the most likely course of action. Still sweet, but either she missed an obvious 
+cue or isn't interested. Either way, decisiveness is primacy, and I shall withdraw, wholeheartedly. 
+
+Kind of got the chunk system figured out a little bit. Definitely will require reworking and actual integration, but the core 
+functions are present. Should include a x-y to x;y format converter to make everything more efficient.
+
+7-20-23:
+I need to universalize my screen_to_world functionalities to build in the "SIZE" element of the screen (the size of 
+a given 1x1 square, in pixels). I'm just doing everything manually outside of it anyways, which is a waste of time 
+and lines of code.
+
+I'm almost done with the absolutely brain-numbing portions of this game dev project. Up next is finishing loading/storing maps,
+implementing the efficient rendering system, and incorporating the player into the system and basic tile setups.
+
+Tomorrow, I need to implement the same visible chunks system to optimize the world drawing, as well as scaling of images and their 
+proper placement. The entire system's a piece of junk, but it's within a single day's work of finishing, which is SO GOOD.
+
+7-21-23:
+Given my results from 'fluffy_test', rotating small items doesn't take too much computational power, so I'll stick with it (no caching, unless that's needed) 
+for my sword swings.
+
+The level editor is almost done. I need to add deleting functionality, as there's a glitch when trying to replace assets with variable scaling.
+It'll take some brain power tomorrow to remedy. It's got to be a wiggle-value error. I need to find a way to isolate and reproduce the error. I
+hope it only takes 20 minutes. 
+
+Also need to add deletion functionality, as well as offsets for non-tile objects. Perhaps a config file is in order. Either way, v1 will be done 
+in a week or so. Also, loading a map without initializing the tilesets ruins it.
+
+7-22-23:
+There are two ways to solve a problem. One way is to solve it, the other way is to ignore it. I'm taking the latter approach and ignoring my problems 
+by disabling scaling. I'll figure out how to make that work later down the road, when I actually have the desire and brainpower to figure it out.
+Right now, I want closure.
+
+He, he, still not finished with the decor system. I'll have to get around to it in the AY, and once I actually have what I want in mind.
+
+7-27-23:
+AIRBORNE! Hate the govt, though.
+
+I think I'll just store everything on spritesheets, so I can lose the 'ss' system of how to render stuff. Instead, I'll have another 
+config reference lookup thing to deal with special cases, and store everything relevant on spritesheets.
+
+8-4-23:
+I'm home!
+I found a bug today when showing Michael the code. Apparently, sometimes when I try to delete/replace a tile, it is sticky and doesn't work.
+Could be a floating point error, lookup error through iteration, or something else. I need to look into this further before I continue development.
+
+8-19-23:
+Upon further testing, the error appears to be more devious than I thought. It'll require an extensive redesign of my tile loading system, which granted,
+is a pile of crap, but will take a lot of work. Maybe look at DFP's tutorial on platformers.
+
+8-26-23:
+Finally, the level editor (at least the basic functionality) is complete! No more of that elusive error, so hopefully it's been resolved for good.
+I redesigned the image loading system, so now the program can load shit without having to access the scroll menu.
+I'm really tired, and won't be able to do any additional quality work today, but I'm happy with the progress that I made. 
+Future plans:
+1) un-magik the numbers in the scaling
+2) Take more helpful notes
+
+11-6-23:
+Dang, it's been a minute since I've reviewed this code. Here's a link for an elegant autotiling 
+
+11-26-23:
+Actually got a LOT done today:
+1) No more wacky numbers with the level editor. Changed the numbering system, and it's really clean!
+2) Integrated the level editor with the rpgmod.py file, so I can play maps now
+3) Ran some tests, and it all runs at 500+ fps, so performance is good
+
+TODO: 
+1) Unmagik numbers
+2) Autotiler
+3) Have camera draw to reduced size, then enlarge for actual screen (better pixel feel & performance)
+4) weird bug when I dash then click away, leaves me dashing infinitely
+
+1-13-24:
+1) cleared maps.config cache "data/cave_decor.png", "1": "data/tileset.png", "2": "data/walls.png", "3": "data/castle_tileset.png", "4": "data/castle_tileset2.png",
+2) deleted text from page1 JSON: 
+        {"ID":1,"type":"text", "rect":[0,0,300,201], "movable":1, "text":
+            [{"name": "tileset_1", "size":50, "text":"tileset_1", "color":[255, 255, 255], "anal":0, "pos":[10,10], "function":"change_palette", 
+              "self_args":["builder"],"args":[{"method":"spritesheet", "spritesheet":"data/tileset.png", "group":"tile","image_start_offset":[20,20], 
+                "vert_offset":10, "scale":4, "colorkey":[255,255,255]}]},
+             {"name": "decor_1", "size":50, "text":"decor_1", "color":[255, 255, 255], "anal":0, "pos":[10,40],"function":"change_palette", 
+             "self_args":["builder"],"args":[{"method":"spritesheet", "spritesheet":"data/cave_decor.png", "group":"decor","image_start_offset":[20,20], 
+               "vert_offset":10, "scale":4, "colorkey":[255,255,255]}]},
+               {"name": "castle_1", "size":50, "text":"castle_1", "color":[255, 255, 255], "anal":0, "pos":[10,70],"function":"change_palette", 
+             "self_args":["builder"],"args":[{"method":"spritesheet", "spritesheet":"data/castle_tileset2.png", "group":"tile","image_start_offset":[20,20], 
+               "vert_offset":10, "scale":4, "colorkey":[255,255,255]}]}
+            ]},
+
+1-20-24:
+It's been a good day so far. It's 1640 right now, and I'm sitting in my room, waiting to go on my date at 1830.
+Dom just said some pretty passive-aggressive stuff, or at least that's how I interpreted it. When I said that Kwon tapped me out, he acted as though that was a sign of weakness.
+Also, he pretended like he knew more about combatives than Kwon. That's certainly not true; I've whupped Dom's ass in under a minute before. Also, he said that if we have another
+circuit workout for Supe's PT, he's going to leave me behind. Hell no, I'm going to get good enough to absolutely dust him. When we fight on Thursday mornings, I'm going to 
+choke him out. But what would really sting him is beating his ass on the ACFT, especially on the run, or points value would be enough. That'd mean I'd need to work on deadlift, but 
+if need be, I'll do it. Pushups too, and the ball throw.
+
+All of this is being said in the name of fun, of course. I love Dom, but I'm going to put him in his place. He needs to stop acting like he's the best at everything, and get humbled a 
+little bit. I'm the first to admit that I'm not great physically, but I won't have him acting superior. And when I got an A+ in survival swim and he got a C-, he made it into a class
+issue. It would really show him if I absolutely beat him into the ground, in friendly competition. Master of the Sword or beating his IOCT time would also show him.
+
+Sorry, I just spent most of my time in this development report journalling. Here's the actual updates I implemented:
+1) Implemented autotiling into the level editor

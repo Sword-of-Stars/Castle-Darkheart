@@ -1,0 +1,19 @@
+Maybe create a 'batch' class to handle batches of objects (like images or selectables)
+to make handling large amounts of data easier and to clean up the respective region
+classes
+
+Yeah, just generally clean up the region classes
+
+Potentially add the possibility for animation later?
+
+Selection still feels crappy, though the selectable objects help somewhat
+
+I need to remember this doesn't require perfection, just needs to be efficient enough
+
+The chunk size appears locked to the screen, hmm.
+The items are being placed in improper chunk ID locations. For instance, [3,-1]
+
+Need to figure out how to implement:
+1) decor (placement, )
+2) item descriptions
+3) 

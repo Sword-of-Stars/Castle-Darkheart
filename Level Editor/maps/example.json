@@ -1,5 +1,0 @@
-{"name":"The Golden Plains", "chunks":
-    {"0;0":[{"tile_ID":"ss;22;01", "group":"tile","pos":[0,0],"z-order":0},
-            {"tile_ID":"ss;22;01", "group":"tile","pos":[1,0],"z-order":0}]
-    }
-}
