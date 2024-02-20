@@ -1,6 +1,6 @@
 # Castle-Darkheart
-My indie pixel-art dungeon-crawler RPG
-![image](RPG_Base\data\menu_images\composite_menu.png)
+My indie pixel-art dungeon-crawler RPG/
+![image](/RPG_Base\data\menu_images\composite_menu.png)
 
 ## Story
 Venture through the perilous Castle Darkheart in this dungeon-crawler RPG. Battle dangerous foes, acquire powerful abilities, and uncover ancient secrets in a twisted realm ruled by the Mad King.
