@@ -13,4 +13,4 @@ Castle Darkheart uses Pynamo, a custom framework in Pygame. It's built around my
 
 ## Credits
 * Thanks to JVB226 for his incredible cover artwork!
-* DaFluffyPotato for inspiration and video tutorials
+* DaFluffyPotato for inspiration and video tutorials, especially for his code for shader implementation!
