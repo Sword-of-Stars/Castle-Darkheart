@@ -33,7 +33,6 @@ class Builder():
         self.show_trigger = True
         self.place_multiple = True
         self.can_scale = True # Bugged for now :%
-        self.place_large = True
 
         self.brush_size = 1
 
@@ -141,29 +140,23 @@ class Builder():
 
             # Later, port to event
             if state[0]:
-                if not self.just_clicked or self.place_multiple:
+                if not self.just_clicked:
                     self.just_clicked = True
-                    if self.world.is_over:
-                        if not self.place_large: # allows one to place multiple assets
-                            if not self.autotile or not self.selected.autotilable: #band-aid soln for now
-                                self.place_asset(pos)
-                            elif self.autotile and self.selected.group == "tile":
-                                tile_pos, chunk_id = self.world.get_tile_coord(pos)
-                                self.handle_autotile(tile_pos, chunk_id)    
-                        else:
-                            tiles = self.world.get_range_from_tile(pos, radius=self.brush_size)  
+                    if self.world.is_over: # is the user hovering over the map?
+                        tiles = self.world.get_range_from_tile(pos, radius=self.brush_size)  
 
-                            if not self.autotile or not self.selected.autotilable: #band-aid soln for now
-                                self.place_asset(pos)
-                                for chunk, tile_pos in tiles:
-                                    self.place_asset_by_coord(chunk, tile_pos)
-                            elif self.autotile and self.selected.group == "tile":
-                                for chunk, tile_pos in tiles:
-                                    self.handle_autotile(tile_pos, chunk)
+                        if not self.autotile or not self.selected.autotilable: #band-aid soln for now
+                            self.place_asset(pos)
+                            for chunk, tile_pos in tiles:
+                                self.place_asset_by_coord(chunk, tile_pos)
+                        elif self.autotile and self.selected.group == "tile":
+                            for chunk, tile_pos in tiles:
+                                self.handle_autotile(tile_pos, chunk)
                 else:
                     self.just_clicked = False
         
             self.selected.update(screen)
+
         else:
             if state[2]:
                 tiles = self.world.get_range_from_tile(pos, radius=self.brush_size)

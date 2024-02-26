@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 
 from scripts.entities.player import Player
 from scripts.rendering.camera import Camera
@@ -24,7 +24,7 @@ from scripts.story.story_manager import StoryManager
 
 
 WIDTH, HEIGHT = 1200,800
-screen = pygame.display.set_mode((WIDTH, HEIGHT),  pygame.OPENGL | pygame.DOUBLEBUF)
+screen = pygame.display.set_mode((WIDTH, HEIGHT),  pygame.OPENGL | pygame.DOUBLEBUF | pygame.HIDDEN)
 camera = Camera(0,0,WIDTH, HEIGHT)
 clock = pygame.time.Clock()
 font = pygame.font.SysFont('ErasITC', 20)
@@ -32,7 +32,7 @@ font = pygame.font.SysFont('ErasITC', 20)
 #===== Mixer Initialization =====#
 pygame.mixer.init()
 pygame.mixer.music.load('data/music/backing-1/walking_music.mp3')
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 
 #===== Object Creation =====#
 player = Player(1300, 0)
@@ -41,27 +41,31 @@ Wendigo(0, 100)
 Wendigo(100, 100)
 Wendigo(100, 150)
 Wendigo(300, 130)
-Wendigo(200, 100)
-Wendigo(20, 100)
-Wendigo(100, 100)
+#Wendigo(200, 100)
+#Wendigo(20, 100)
 
 
 hud = HUD(player, camera)
 
 db = Database()
-world = Map("maps/new_map_final", db, camera)
+
+world = Map("maps/floor_swap", db, camera)
+world.load_map(camera)
+
 
 ggg = TextBox("The Book of Kemmler", "In Xanadu did Kublai Khan\nA ststely pleasure dome decree\nWherealphthesacredrierran \nthru cavernes measureless to man\ndown to a sunless se")
 sm = StoryManager()
 
 #===== Main Game Loop =====#
+screen = pygame.display.set_mode((WIDTH, HEIGHT),  pygame.OPENGL | pygame.DOUBLEBUF)
 
 while True:
     clock.tick(60)
     camera.fill()
 
     pygame.display.set_caption(str(clock.get_fps()))
-    #pygame.display.set_caption(str(pygame.mouse.get_pos()))
+    #pygame.display.set_caption(f"{camera.x}, {camera.y}")
+
 
     handle_events(player, ggg)
     

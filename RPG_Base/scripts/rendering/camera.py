@@ -77,9 +77,12 @@ class Camera():
 
         self.ctx = ShaderContext()
 
+
         self.screen_shake = False
         self.screen_shake_x = []
         self.screen_shake_y = []
+
+        self.vignette = 0.7
 
     def fill(self):
         self.render_list = []
@@ -147,5 +150,5 @@ class Camera():
         
         self.new_display.blit(self.display, pos)
 
-        self.ctx.update(self.new_display, self.ui_surf)
+        self.ctx.update(self.new_display, self.ui_surf, self.vignette)
 

@@ -22,7 +22,7 @@ dt = .01
 
 while True:
     clock.tick(60)
-    #screen.fill((0,0,0))
+    screen.fill((0,0,0))
 
     t += dt
 

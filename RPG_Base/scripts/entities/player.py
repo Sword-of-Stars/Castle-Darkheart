@@ -32,13 +32,18 @@ class Player(Entity):
         masks = [pygame.mask.from_surface(x).to_surface() for x in frames]
         for mask in masks:
             mask.set_colorkey((0,0,0))
+
+        surf = pygame.surface.Surface((100,100))
+        surf.fill((100,100,100))
+        surf.blit(masks[3], (0,0))
+        pygame.image.save(surf, "hellnaw.png")
         
 
         draw_pos = (self.rect.bottomleft[0], self.rect.topleft[1] + self.rect.height)
         self.anims = {"walk":Animation(frames[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False), 
                       "idle":Animation(frames[5:], self.fps, draw_pos, self.layer, loop=True, alive=False),
-                      "walk_mask":Animation(masks[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False),
-                      "idle_mask":Animation(masks[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False)}
+                      "walk_mask":Animation(masks[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False, blank=True),
+                      "idle_mask":Animation(masks[5:], self.fps, draw_pos, self.layer, loop=True, alive=False, blank=True)}
         
         # Speed and Movement
         self.speed = 6

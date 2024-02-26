@@ -28,7 +28,7 @@ class ShaderContext():
         tex.write(surf.get_view('1'))
         return tex
 
-    def update(self, display, ui):
+    def update(self, display, ui, vignette): # eventually just use kwargs
         self.time += 1
 
         frame_tex = self.surf_to_texture(display)
@@ -39,6 +39,7 @@ class ShaderContext():
 
         self.program['tex'] = 0
         self.program['ui_surf'] = 1
+        self.program['outRad'] = vignette
 
         #self.program['time'] = self.time
         self.render_object.render(mode=moderngl.TRIANGLE_STRIP)
@@ -66,6 +67,7 @@ frag_shader = '''
 
 uniform sampler2D tex;
 uniform sampler2D ui_surf;
+uniform float outRad;
 
 in vec2 uvs;
 out vec4 f_color;
@@ -78,7 +80,7 @@ void main() {
     // Adjust radii based on texture dimensions (assuming square texture)
     float textureSize = 1.0; // Replace with actual texture size if known
     float innerRadius = 0.2 * textureSize;
-    float outerRadius = 0.7 * textureSize;
+    float outerRadius = outRad * textureSize;
 
     // Calculate vignette strength
     float vignetteStrength = smoothstep(innerRadius, outerRadius, distanceFromCenter);

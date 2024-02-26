@@ -17,14 +17,14 @@ def change_palette(gui, config):
 def save_file(map_data, path):
     name = input("Name your file: ") # Make a UI feature later
     json_string = json.dumps(map_data)
-    with open(f"{path}/{name}.json", "w") as json_file:
+    with open(f"../RPG_Base/maps/{name}.json", "w") as json_file:
         json_file.write(json_string)
     
-def load_file(builder, path="maps"):
+def load_file(builder, path="../RPG_Base/maps"):
 
     try:
         name = input("Name the file you'd like to load: ") # Make a UI feature later
-        with open(f"{path}/{name}.json", "r") as load_file:
+        with open(f"../RPG_Base/maps/{name}.json", "r") as load_file:
             file = json.load(load_file)
             
     except:

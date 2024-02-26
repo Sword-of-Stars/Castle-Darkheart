@@ -267,7 +267,7 @@ class WorldBox(Region):
       self.scale = 1
       self.pre_scale = 1
       self.scroll_speed = 0.1
-      self.scroll_min = 0.125
+      self.scroll_min = 0.125/2
       self.scroll_max = 4
 
       self.dimensions = [1000, 1000, 1000, 1000]
@@ -382,46 +382,60 @@ class WorldBox(Region):
       # Once that's done, only check to see if a chunk is loaded or unloaded,
       # eliminating the need to recalculate every frame
 
+      ax, ay = screen_to_chunk(self.rect.topleft, self.offset, scale=self.scale)
+      bx, by = screen_to_chunk(self.rect.bottomright, self.offset, scale=self.scale)
+
+      c_dx = bx-ax+1 # +1 adds a bit of buffer for seamless drawing
+      c_dy = by-ay+1
+      
+      chunk_map = []
+   
+      for x in range(-1, c_dx):
+         for y in range(-1, c_dy):
+               chunk_map.append(f"{ax+x};{ay+y}")
+                  
       # For each item in the world
       for key, chunk in m.items(): # Set to visible later, rough for now
 
-         # Convert chunk id into usable parameters
-         cx, cy = [int(x) for x in key.split(";")]
+         if key in chunk_map:
 
-         # Pass all tiles in chunk to a renderer
-         for tile in chunk:
+            # Convert chunk id into usable parameters
+            cx, cy = [int(x) for x in key.split(";")]
 
-            # Draw tiles
-            if tile['group'] == 'tile':
-               x, y = tile['pos']
-               pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+            # Pass all tiles in chunk to a renderer
+            for tile in chunk:
 
-               pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
-
-               img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
-               renderer.append((img, pos, tile["z-order"]))
-
-            elif tile['group'] == 'decor': # For now, identical code. However, in the future, this should include offsets for decor
-
-               if tile["offset"] == [0,0]:
+               # Draw tiles
+               if tile['group'] == 'tile':
                   x, y = tile['pos']
                   pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
 
-               else:
-                  x, y = tile['offset']
-                  pos = world_to_screen((x, y), self.offset, self.scale) # Magic numbers!
+                  pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
 
-               img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
-               screen.blit(img, pos)
+                  img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
+                  renderer.append((img, pos, tile["z-order"]))
 
-            if tile['group'] == 'trigger' and self.builder.show_trigger:
-               x, y = tile['pos']
-               pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+               elif tile['group'] == 'decor': # For now, identical code. However, in the future, this should include offsets for decor
 
-               pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
+                  if tile["offset"] == [0,0]:
+                     x, y = tile['pos']
+                     pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
 
-               img = pygame.transform.scale_by(self.trigger, self.scale)
-               renderer.append((img, pos, tile["z-order"]))
+                  else:
+                     x, y = tile['offset']
+                     pos = world_to_screen((x, y), self.offset, self.scale) # Magic numbers!
+
+                  img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
+                  screen.blit(img, pos)
+
+               if tile['group'] == 'trigger' and self.builder.show_trigger:
+                  x, y = tile['pos']
+                  pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+
+                  pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
+
+                  img = pygame.transform.scale_by(self.trigger, self.scale)
+                  renderer.append((img, pos, tile["z-order"]))
          
       for item in sorted(renderer, key=lambda x:(x[2], x[1][1])): # sort based on z-order
          screen.blit(item[0], item[1])

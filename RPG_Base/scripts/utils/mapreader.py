@@ -19,10 +19,10 @@ class Map:
         self.pixel_size = 4 # One pixel takes a 4x4 region on screen
         self.chunk_size = 64
 
-        self.load_map(mapfile, camera)
+        self.mapfile = mapfile
 
-    def load_map(self, mapfile, camera):
-        chunks = load_json(mapfile)["chunks"]
+    def load_map(self, camera):
+        chunks = load_json(self.mapfile)["chunks"]
 
         for key, chunk in chunks.items(): # Set to visible later, rough for now
             cx, cy = [int(x) for x in key.split(";")]

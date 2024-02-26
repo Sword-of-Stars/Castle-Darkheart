@@ -31,7 +31,6 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 gui.exit()
             elif event.key == pygame.K_KP_MINUS or event.key == pygame.K_MINUS:
-                print("LOLO")
                 gui.builder.change_brush_size(-1)
             elif event.key == pygame.K_KP_PLUS or event.key == pygame.K_PLUS:
                 gui.builder.change_brush_size(1)
