@@ -22,9 +22,9 @@ class Map:
         self.mapfile = mapfile
 
     def load_map(self, camera):
-        chunks = load_json(self.mapfile)["chunks"]
+        self.chunks = load_json(self.mapfile)["chunks"]
 
-        for key, chunk in chunks.items(): # Set to visible later, rough for now
+        for key, chunk in self.chunks.items(): # Set to visible later, rough for now
             cx, cy = [int(x) for x in key.split(";")]
             
             self.map_dict[key] = []

@@ -142,7 +142,6 @@ class Player(Entity):
     def gain_zeal(self):
         self.zeal = min(self.zeal+11, self.zeal_max)
 
-
     def make_dash_fade(self, camera):
         '''Make the glowing white aftereffects of dashing'''
         if self.dashing:

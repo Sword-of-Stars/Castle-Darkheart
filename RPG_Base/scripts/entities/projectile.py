@@ -1,6 +1,8 @@
 import pygame
+import math
 
 from scripts.entities.entity import Entity
+from scripts.utils.core_functions import angle_to_rad
 
 class Projectile(Entity):
     def __init__(self, pos, speed, vel, lifetime=10000, img=None, origin=None, layer=4):
@@ -71,6 +73,39 @@ class ProjectileCircle(Projectile):
 
         #elif self.img == None:
            # pygame.draw.circle(camera.display, (255,0,0), self.pos, self.radius)
+
+class ProjectileHoming(Projectile):
+    def __init__(self, pos, speed, vel, target, radius=10, damage=1, lifetime=10000, img=None, origin=None, layer=4):
+        Projectile.__init__(self, pos, speed, vel, lifetime, img, origin, layer)
+
+        self.target = target
+        self.accel = 0.05
+
+        self.radius = radius
+        self.damage = damage
+
+        if self.img != None:
+            self.rect = self.img.get_rect()
+
+    def move(self, camera, dx, dy):
+        angle = angle_to_rad(self.pos, self.target.pos)
+        self.vel[0] += self.accel*math.cos(angle)
+        self.vel[1] += self.accel*math.sin(angle)
+
+        if self.vel != [0,0]:
+            self.vel = self.vel.normalize()*self.speed
+
+
+        self.pos += self.vel*self.speed
+        self.pos[0] -= int(dx * camera.speed)*0.5
+        self.pos[1] -= int(dy * camera.speed)*0.5
+
+    def draw(self, camera):
+        # in future, reassign functions rather than a check every loop
+        if self.img != None:
+            pos = (self.pos[0]-self.rect.width//2, self.pos[1]-self.rect.height//2)
+            camera.display.blit(self.img, pos)
+
 
 
 

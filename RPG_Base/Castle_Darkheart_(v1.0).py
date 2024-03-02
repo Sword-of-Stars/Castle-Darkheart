@@ -2,6 +2,7 @@ import pygame, sys
 
 from scripts.entities.player import Player
 from scripts.rendering.camera import Camera
+from scripts.rendering.minimap import Minimap
 from scripts.utils.mapreader import Map
 from scripts.data_structures.tile_database import Database
 from scripts.entities.HUD import HUD
@@ -10,6 +11,7 @@ from scripts.rendering.animation import anim_handler
 from scripts.entities.projectile import proj_handler
 from scripts.vfx.particles import part_handler
 from scripts.entities.enemy import Wendigo, enemy_handler
+from scripts.entities.razak import Razak
 
 
 from scripts.utils.handle_events import handle_events
@@ -37,7 +39,7 @@ pygame.mixer.init()
 #===== Object Creation =====#
 player = Player(1300, 0)
 
-for i in range(14):
+for i in range(4):
     Wendigo(-100+10*8, 100)
 
 
@@ -52,10 +54,12 @@ world.load_map(camera)
 ggg = TextBox("The Book of Kemmler", "In Xanadu did Kublai Khan\nA ststely pleasure dome decree\nWherealphthesacredrierran \nthru cavernes measureless to man\ndown to a sunless se")
 sm = StoryManager()
 
+razak = Razak([100,100])
+
 #===== Main Game Loop =====#
 screen = pygame.display.set_mode((WIDTH, HEIGHT),  pygame.OPENGL | pygame.DOUBLEBUF)
 pygame.mixer.music.load("data/music/boss-1/Boss Theme Final.mp3")
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 
 
 while True:
@@ -84,6 +88,9 @@ while True:
         trigger.update(camera)
 
     hud.update()
+
+    razak.move_camera(camera, dx, dy)
+    razak.update(camera)
 
     #ggg.update(camera)
 

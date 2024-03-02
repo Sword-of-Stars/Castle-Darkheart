@@ -6,7 +6,7 @@ import random
 from scripts.entities.entity import Entity
 from scripts.utils.core_functions import prep_image, angle_to, collision_list, distance, get_images
 from scripts.vfx.particles import Spark, part_handler, explosion
-from scripts.entities.projectile import proj_handler, ProjectileCircle
+from scripts.entities.projectile import proj_handler, ProjectileCircle, ProjectileHoming
 
 # Enemies need (generic) speed, health, damage
 # (specific) animation, special attacks, 
@@ -189,7 +189,7 @@ class Wendigo(Enemy):
             self.state = "attack"
             self.attack_timer = self.attack_timer_max
 
-    def handle_attack(self, camera):
+    def handle_attack(self, camera, player):
         self.attack_timer -= 1
 
         if self.attack_timer >= self.attack_timer_max-self.attack_curve[0]: # in the approach phase
@@ -211,7 +211,7 @@ class Wendigo(Enemy):
                 for i in range(num_proj):
                     angle = math.radians(i*360/num_proj+offset)
                     proj_handler.add_projectile(ProjectileCircle(self.rect.center, 5, (math.cos(angle), math.sin(angle)), 10, 
-                                                                 lifetime=120, img=self.projectile,origin="enemy"))
+                                                                 lifetime=12000, img=self.projectile,origin="enemy"))
                     
                 #proj_handler.add_projectile(ProjectileCircle([self.rect.centerx, self.rect.centery+60], 0, (0,0), 50, 
                                                                  #lifetime=12, img=self.aoe,origin="enemy", layer=0.9))
@@ -279,7 +279,7 @@ class Wendigo(Enemy):
             self.vel = pygame.Vector2(0,0)
 
         if self.state == "attack":
-            self.handle_attack(camera)
+            self.handle_attack(camera, player)
             self.vel = pygame.Vector2(0,0)
 
         elif self.state == "chase":

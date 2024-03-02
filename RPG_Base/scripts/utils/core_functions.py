@@ -100,6 +100,21 @@ def angle_to(e1, e2):
    
     return angle
 
+def angle_to_rad(e1, e2):
+    """Returns the angle from e1 to e2
+
+    Arg:
+        e1, e2 (seq): x-y coordinates
+    Returns:
+        float: angle in radians
+    """
+
+    dx = e2[0]-e1[0]
+    dy = e2[1]-e1[1]
+    angle = math.atan2(dy,dx)
+   
+    return angle
+
 def distance(e1, e2):
     dx = e2[0]-e1[0]
     dy = e2[1]-e1[1]

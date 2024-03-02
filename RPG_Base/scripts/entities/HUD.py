@@ -1,10 +1,6 @@
 import pygame, math
 from scripts.utils.core_functions import get_images, prep_image
 
-def mana_surf(rect):
-    surf = pygame.Surface((rect.width, rect.height))
-    surf.set_colorkey((0, 0, 0))
-    return surf
 
 class HUD():
     def __init__(self, player, camera):
