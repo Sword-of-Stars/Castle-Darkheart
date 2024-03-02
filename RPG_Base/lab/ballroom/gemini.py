@@ -125,7 +125,7 @@ def generate_rose(length, k, center):
         dancers.append(dancer)
     return dancers
 
-dancers = generate_rose(150, 3, [WIDTH // 2, HEIGHT // 2])
+dancers = generate_rose(150, 9, [WIDTH // 2, HEIGHT // 2])
 
 dt = .01
 t = 0

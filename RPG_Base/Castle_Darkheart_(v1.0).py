@@ -31,18 +31,14 @@ font = pygame.font.SysFont('ErasITC', 20)
 
 #===== Mixer Initialization =====#
 pygame.mixer.init()
-pygame.mixer.music.load('data/music/backing-1/walking_music.mp3')
-#pygame.mixer.music.play(-1)
+
+#pygame.mixer.music.load('data/music/boss-1/backing-1/walking_music.mp3')
 
 #===== Object Creation =====#
 player = Player(1300, 0)
 
-Wendigo(0, 100)
-Wendigo(100, 100)
-Wendigo(100, 150)
-Wendigo(300, 130)
-#Wendigo(200, 100)
-#Wendigo(20, 100)
+for i in range(14):
+    Wendigo(-100+10*8, 100)
 
 
 hud = HUD(player, camera)
@@ -58,6 +54,9 @@ sm = StoryManager()
 
 #===== Main Game Loop =====#
 screen = pygame.display.set_mode((WIDTH, HEIGHT),  pygame.OPENGL | pygame.DOUBLEBUF)
+pygame.mixer.music.load("data/music/boss-1/Boss Theme Final.mp3")
+pygame.mixer.music.play(-1)
+
 
 while True:
     clock.tick(60)

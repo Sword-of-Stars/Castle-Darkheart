@@ -32,11 +32,6 @@ class Player(Entity):
         masks = [pygame.mask.from_surface(x).to_surface() for x in frames]
         for mask in masks:
             mask.set_colorkey((0,0,0))
-
-        surf = pygame.surface.Surface((100,100))
-        surf.fill((100,100,100))
-        surf.blit(masks[3], (0,0))
-        pygame.image.save(surf, "hellnaw.png")
         
 
         draw_pos = (self.rect.bottomleft[0], self.rect.topleft[1] + self.rect.height)
@@ -66,7 +61,7 @@ class Player(Entity):
 
         self.shadow = Shadow([0,0,self.rect.width,16], 0.9)
 
-        self.health = 5
+        self.health = 15
         self.is_alive = True
         self.invincibility_timer_max = 15
         self.invincibility_timer_dash = self.dash_frames + 3
