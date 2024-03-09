@@ -5,6 +5,8 @@ from scripts.utils.core_functions import collision_list, get_images, prep_image,
 from scripts.entities.sword import Sword
 from scripts.rendering.animation import Animation, AnimationFade
 from scripts.entities.shadow import Shadow
+from scripts.entities.projectile import proj_handler, ProjectileHoming
+import random
 
 class Player(Entity):
     def __init__(self, x, y):
@@ -36,9 +38,10 @@ class Player(Entity):
 
         draw_pos = (self.rect.bottomleft[0], self.rect.topleft[1] + self.rect.height)
         self.anims = {"walk":Animation(frames[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False), 
-                      "idle":Animation(frames[5:], self.fps, draw_pos, self.layer, loop=True, alive=False),
+                      "idle":Animation(frames[5:11], self.fps, draw_pos, self.layer, loop=True, alive=False),
+                      "die":Animation(frames[11:], self.fps, draw_pos, self.layer, loop=False, alive=False, linger_last=True),
                       "walk_mask":Animation(masks[0:5], self.fps, draw_pos, self.layer, loop=True, alive=False, blank=True),
-                      "idle_mask":Animation(masks[5:], self.fps, draw_pos, self.layer, loop=True, alive=False, blank=True)}
+                      "idle_mask":Animation(masks[5:11], self.fps, draw_pos, self.layer, loop=True, alive=False, blank=True)}
         
         # Speed and Movement
         self.speed = 6
@@ -61,7 +64,10 @@ class Player(Entity):
 
         self.shadow = Shadow([0,0,self.rect.width,16], 0.9)
 
-        self.health = 15
+        self.maxHealth = 15
+        self.health = self.maxHealth
+        self.toHeal = 0
+
         self.is_alive = True
         self.invincibility_timer_max = 15
         self.invincibility_timer_dash = self.dash_frames + 3
@@ -75,6 +81,53 @@ class Player(Entity):
         self.zeal_max = 99
 
         self.death_sound = pygame.mixer.Sound("data/sound_effects/player_death_01.wav")
+        self.death_linger_max = 100
+        self.death_linger = self.death_linger_max
+
+    def reset(self, x, y):
+        frames = [prep_image(image, 4) for image in get_images("data/knight5.png")]
+        self.rect = frames[0].get_frect(x=x, y=y+40)
+        self.orig_rect = self.rect.copy()
+        self.rect.height -= 40
+        self.pos = self.rect.midbottom
+
+        self.anims[self.state].stop()
+        # Key Presses and Movement
+        self.pressed = {"right":False, "left":False, "up":False,"down":False, "space":False}
+        self.most_recent_press = {"horizontal":'',"vertical":''}
+
+        # Animation handling
+        self.state = "idle"
+        self.facing = 0
+
+        self.death_linger = self.death_linger_max
+
+        self.health = self.maxHealth
+        self.toHeal = 0
+        self.is_alive = True
+        self.invincibility_timer_max = 15
+        self.invincibility_timer_dash = self.dash_frames + 3
+        self.invincibility_timer = 0
+
+        self.knockback_timer_max = 5
+        self.knockback_timer = self.knockback_timer_max
+        self.knockback_vel = pygame.Vector2(0,0)
+
+        self.zeal = 0
+
+        # Speed and Movement
+        self.speed = 6
+        self.normal_speed = 6
+
+        # Dashing
+        self.dashing = False # But I'm always dashing
+        self.dash_speed = 30
+        self.dash_frames = 8
+        self.dash_timer = 0
+        self.MAX_DASH_TIMER = 100
+
+        self.is_alive = True
+
 
     def set_HUD(self, HUD):
         self.HUD = HUD
@@ -97,7 +150,6 @@ class Player(Entity):
         if self.pressed["space"]:
             self.dash()
        
-
     def get_facing(self, pos):
         """Have the player always facing the cursor"""
 
@@ -142,6 +194,15 @@ class Player(Entity):
     def gain_zeal(self):
         self.zeal = min(self.zeal+11, self.zeal_max)
 
+    def heal(self):
+        if self.zeal > 33 and self.HUD.flash_timer <= 0 and self.health < self.maxHealth:
+            self.zeal -= 33
+            self.HUD.flash(1)
+            self.toHeal = 1
+
+            for i in range(5):
+                proj_handler.add_projectile(ProjectileHoming((self.rect.x, self.rect.y-150), 1.5, [0,1], self, 10, damage=-1, lifetime=50, layer=5))
+
     def make_dash_fade(self, camera):
         '''Make the glowing white aftereffects of dashing'''
         if self.dashing:
@@ -162,6 +223,7 @@ class Player(Entity):
         return vx, vy
     
     def get_state(self):
+
         if self.vel == [0,0]:
             if not (self.state == "idle" or self.state == "idle_mask"):
                 self.anims[self.state].stop()
@@ -213,33 +275,49 @@ class Player(Entity):
             self.knockback_timer -= 1
 
     def update(self, obstacles, camera, pos):
-
-        self.handle_key_presses()
-
-        self.handle_knockback()
-
-        self.move(obstacles)
-        self.pos = (self.rect.midtop[0] + camera.rect.x, self.rect.midtop[1] + camera.rect.y) # Maybe port into entity move class later
-
-        self.make_dash_fade(camera)
-        self.handle_invincibility()
-        self.get_state()
-        self.get_facing(pos)
-        self.anim_player()
-
+        ret = "game"
+        
         if self.health <= 0:
+            self.vel = [0,0]
+            self.move(obstacles)
+
+            self.pos = (self.rect.midtop[0] + camera.rect.x, self.rect.midtop[1] + camera.rect.y) # Maybe port into entity move class later
             if self.is_alive:
                 self.is_alive = False
                 pygame.mixer.music.fadeout(30)
                 pygame.mixer.stop()
                 self.death_sound.play()
 
+                self.anims[self.state].stop()
+                self.state = "die"
+            self.anim_player()
+
+            if self.death_linger <= 0:
+                ret = "transition"
+            self.death_linger -= 1
 
 
-        #pygame.draw.rect(camera.display, (255, 0, 0), self.rect)
-        
-        # Send to be handled at camera z order render layer, remove redundance and implement elegance
-        self.sword.update(pos, camera)
+        else:
+            self.handle_key_presses()
+
+            self.handle_knockback()
+
+            self.move(obstacles)
+            self.pos = (self.rect.midtop[0] + camera.rect.x, self.rect.midtop[1] + camera.rect.y) # Maybe port into entity move class later
+
+            self.make_dash_fade(camera)
+            self.handle_invincibility()
+            self.get_state()
+            self.get_facing(pos)
+            self.anim_player()
+            self.sword.update(pos, camera)
+
+            if self.HUD.flash_timer <= 0:
+                self.health += self.toHeal
+                self.toHeal =  0
+
         self.shadow.update((self.rect.left, self.rect.bottom - 10), camera)
+
+        return ret
 
 

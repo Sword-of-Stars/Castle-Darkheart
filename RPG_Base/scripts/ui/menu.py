@@ -1,46 +1,9 @@
 import pygame, sys
 
-#from scripts.ui.button import Button
-
-pygame.init()
-
-class Button():
-    def __init__(self, img, pos, scale=1, hover_sound=None):
-        self.img = pygame.image.load(img)
-        self.img = pygame.transform.scale_by(self.img, scale).convert_alpha()
-        self.rect = self.img.get_rect(x=pos[0], y=pos[1])
-
-        self.glow = pygame.image.load("data/menu_images/glow.png")
-        self.glow = pygame.transform.scale_by(self.glow, scale).convert_alpha()
-        self.glow_offset = (-40,-40)
-
-        self.hover_sound = hover_sound
-        if self.hover_sound != None:
-            self.hover_sound = pygame.mixer.Sound(hover_sound)
-
-        self.over = False
-        self.selected = False
-
-    def is_over(self, pos):
-        if self.rect.collidepoint(pos):
-            if not self.over:
-                self.hover_sound.play()
-            self.over = True
-        else:
-            self.over = False
-
-
-    def update(self, screen, pos):
-        self.is_over(pos)
-        if self.over:
-            pos = self.rect.topleft
-            screen.blit(self.glow, (pos[0]+self.glow_offset[0], 
-                                    pos[1]+self.glow_offset[1]))
-
-        screen.blit(self.img, self.rect)
+from scripts.ui.button import Button
 
 class MenuScreen():
-    def __init__(self):
+    def __init__(self, width, height, camera, clock, mouse, screen):
         
         self.images = {
             "castle": {
@@ -96,21 +59,45 @@ class MenuScreen():
         self.cloud_speed = 1
         self.dist = 50
 
-        self.play_button = Button("data/menu_images/start.png", (60,250), scale=0.75, hover_sound="data/sound_effects/heartbeat_hover.wav")
-        self.settings_button = Button("data/menu_images/settings.png", (60,425), scale=0.75, hover_sound="data/sound_effects/heartbeat_hover.wav")
+        self.play_button = Button("data/menu_images/start.png", (60,350), scale=1.00, 
+                                  hover_sound="data/sound_effects/heartbeat_hover.wav")
+                                  #selected_sound="data/sound_effects/player_death_01.wav")
+        self.settings_button = Button("data/menu_images/settings.png", (60,575), scale=1.00, 
+                                      hover_sound="data/sound_effects/heartbeat_hover.wav")
+                                      #selected_sound="data/sound_effects/tone_01_E.wav")
 
+
+        self.width = width
+        self.height = height
 
         self.load_images()
+
+        fade_out = pygame.surface.Surface((width, height))
+        fade_out.fill((0,0,0))
+        fade_out.set_alpha(0)
+        self.fade_out = fade_out
+        self.fade_t = 0
+
+        pygame.mixer.music.load('data/music/main-1/main-3.mp3')
+        pygame.mixer.music.play(-1)
+
+        self.camera = camera
+        self.clock = clock
+        self.mouse = mouse
+        self.screen = screen
+
+        camera.vignette = 0.9
+   
     
     def load_images(self):
         for image_name, image_data in self.images.items():
             if image_name == "title":
-                image_data["image"] = pygame.transform.scale_by(image_data["image"], 0.5).convert_alpha()
+                image_data["image"] = pygame.transform.scale_by(image_data["image"], 0.8).convert_alpha()
             elif image_name == "sky" or image_name == "castle":
-                image_data["image"] = pygame.transform.scale(image_data["image"], (width, height)).convert_alpha()
+                image_data["image"] = pygame.transform.scale(image_data["image"], (self.width, self.height)).convert_alpha()
             else:
                 img_width, _ = image_data["image"].get_size()
-                factor = (width+self.dist)/img_width
+                factor = (self.width+self.dist)/img_width
                 image_data["image"] = pygame.transform.scale_by(image_data["image"], factor).convert_alpha()
                 img_width, img_height = image_data["image"].get_size()
 
@@ -120,65 +107,67 @@ class MenuScreen():
                     image_data["image"] = pygame.transform.flip(image_data["image"], True, False).convert_alpha()
                     image_data["pos"] = [img_width, 0]
                 else:
-                    image_data["pos"] = [-self.dist//2, height-img_height]
+                    image_data["pos"] = [-self.dist//2, self.height-img_height]
             
             image_data["original_pos"] = image_data["pos"]
+
+    def parallax(self):
+        pos = pygame.mouse.get_pos()
+        dx = (self.width//2-pos[0])/self.width
+        for key, item in self.images.items():
+            if key != "title" and "clouds" not in key:
+                item["pos"] = [item["original_pos"][0] + dx*self.dist/2*item["parallax"], item["original_pos"][1]]
           
-    def update(self, pos, screen):
+    def update(self, pos, camera, state):
+        screen = camera.display
+        self.parallax()
         for image in sorted(self.images.items(), key=lambda x: x[1]["layer"]):
             if "clouds" not in image[0]:
                 screen.blit(image[1]["image"], image[1]["pos"])
             else:
-                image[1]["pos"][0] = -(width+self.dist-self.cloud_speed) if image[1]["pos"][0]+self.cloud_speed > width+self.dist else image[1]["pos"][0]+self.cloud_speed
+                image[1]["pos"][0] = -(self.width+self.dist-self.cloud_speed) if image[1]["pos"][0]+self.cloud_speed > self.width+self.dist else image[1]["pos"][0]+self.cloud_speed
                 screen.blit(image[1]["image"], image[1]["pos"])
 
         self.play_button.update(screen, pos)
         self.settings_button.update(screen, pos)
 
+        if self.play_button.selected:
+            self.fade_t = min(255, self.fade_t+2)
+            self.fade_out.set_alpha(self.fade_t)
+            screen.blit(self.fade_out, (0,0))
 
+            #pygame.mixer.music.fadeout(1020)
 
+            if self.fade_t >= 254:
+                state = "transition"
 
+        return state
 
-clock = pygame.time.Clock()
-width, height = 1200,800
-screen = pygame.display.set_mode((width,height), flags=pygame.FULLSCREEN)
+    def run(self, state):
+        self.screen.fill((0,0,0))
+        self.clock.tick(60)
 
-pygame.mixer.init()
-pygame.mixer.music.load('data/music/main-1/main-3.mp3')
-pygame.mixer.music.play(-1)
+        pygame.display.set_caption((str(self.clock.get_fps())))
 
-menu = MenuScreen()
-#pygame.image.save(screen, "data/menu_images/composite_menu.png")
+        pos = pygame.mouse.get_pos()
+    
 
-mouse = pygame.image.load("data/mouse3.png")
-mouse = pygame.transform.scale_by(mouse, 4).convert_alpha()
-mouse.set_colorkey((255, 255, 255))
-mouse_rect = mouse.get_rect()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
 
-pygame.mouse.set_visible(False)
+        out_state = self.update(pos, self.camera, state)
 
-while True:
-    screen.fill((0,0,0))
-    clock.tick(60)
+        self.mouse.update(self.camera)
 
-    pygame.display.set_caption((str(clock.get_fps())))
+        #screen.blit(fade_out, (0,0))
+        self.camera.draw_world()
+        self.camera.update()
 
-    pos = pygame.mouse.get_pos()
-    dx = (width//2-pos[0])/width
-
-    for key, item in menu.images.items():
-        if key != "title" and "clouds" not in key:
-            item["pos"] = [item["original_pos"][0] + dx*menu.dist/2*item["parallax"], item["original_pos"][1]]
-
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-
-    menu.update(pos, screen)
-
-    mouse_rect.center = pos
-    screen.blit(mouse, mouse_rect)
-
-    pygame.display.flip()
+        return out_state

@@ -18,11 +18,11 @@ def new_tile(n, pos):
 
 def save_file(map_data, path="../RPG_Base/maps"):
     json_string = json.dumps(map_data)
-    with open(f"../RPG_Base/maps/floor_swap.json", "w") as json_file:
+    with open(f"../RPG_Base/maps/xander_swap.json", "w") as json_file:
         json_file.write(json_string)
 
 
-map_file = load_file("iter5")
+map_file = load_file("xala")
 
 choices = [x for x in range(1,10)]
 blank_chance = 1

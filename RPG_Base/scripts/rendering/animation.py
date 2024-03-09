@@ -7,7 +7,7 @@ from scripts.utils.core_functions import blitRotateCenter
 class Animation():
     '''Base class for handling animated sprites (with keyframes)'''
 
-    def __init__(self, frames, framerate, pos, layer=1, static=False, loop=False, alive=False, blank=False):
+    def __init__(self, frames, framerate, pos, layer=1, static=False, loop=False, alive=False, blank=False, linger_last = False):
         self.frames = frames
         self.frame = 0
         self.framerate = framerate
@@ -15,6 +15,7 @@ class Animation():
 
         self.alive = alive
         self.loop = loop
+        self.linger_last = linger_last
 
         self.facing_h = False
         self.facing_v = False
@@ -66,6 +67,10 @@ class Animation():
 
             if not self.loop:
                 self.alive = False
+
+                if self.linger_last:
+                    self.alive = True
+                    self.frame = len(self.frames)-1
 
         else:
             self.frame += self.framerate

@@ -15,10 +15,10 @@ class HUD():
         self.white_heart = pygame.mask.from_surface(self.heart).to_surface().convert_alpha()
         self.white_heart.set_colorkey((0,0,0))
         self.heart_spacing = self.heart.get_rect().width + 10
-        self.heart_offset = [20,20]
+        self.heart_offset = [40,40]
 
         self.zeal = pygame.transform.rotate(prep_image(self.images[1], 6, colorkey=(255,255,255)), 270)
-        self.zeal_offset = [20,65]
+        self.zeal_offset = [40,85]
         self.zeal_counter = pygame.transform.rotate(prep_image(self.images[2], 6, colorkey=(255,255,255)), 270)
         self.zeal_width, self.zeal_height = self.zeal_counter.get_rect().size
         self.zeal_subsurf = pygame.surface.Surface((self.zeal_width, self.zeal_height))
@@ -33,6 +33,10 @@ class HUD():
     def flash(self, damage=1):
         self.flash_timer = self.flash_timer_MAX
         self.damage_taken = damage
+
+    def clear(self):
+        self.surf.fill((0,0,0))
+        self.surf.set_colorkey((0,0,0))
 
     def draw_health(self):
         if self.flash_timer > 0:
@@ -65,7 +69,8 @@ class HUD():
     def update(self):
         self.surf.fill(pygame.Color(0,0,0,0))
 
-        self.draw_health()
-        self.draw_zeal()
+        if self.player.health > 0:
+            self.draw_health()
+            self.draw_zeal()
        
         

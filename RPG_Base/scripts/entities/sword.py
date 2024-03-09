@@ -147,7 +147,7 @@ class Sword(Weapon):
 
     def swing(self):
 
-        if not self.is_swing:
+        if not self.is_swing and self.player.health > 0:
             self.swing_sound.play()
 
             self.is_swing = True

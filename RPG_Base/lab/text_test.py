@@ -23,12 +23,14 @@ font2 = pygame.font.Font(FONT_PATH, 32)
 
 # Render some text with the custom font
 color = (244, 255, 255)
-ts1 = font.render("Castle", True, color)
+ts1 = font.render("WASD to move   Press space while moving to dash  Left click to attack  Right click to heal", True, color)
 ts2 = font.render("Darkheart", True, color)
 ts3 = font2.render("v1.0", True, color)
 
 pygame.image.save(ts1, "Castle.png")
 pygame.image.save(ts2, "Darkheart.png")
+
+1/0
 
 #text_surface = pygame.transform.scale2x(text_surface)
 
