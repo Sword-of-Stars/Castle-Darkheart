@@ -201,7 +201,7 @@ class Player(Entity):
             self.toHeal = 1
 
             for i in range(5):
-                proj_handler.add_projectile(ProjectileHoming((self.rect.x, self.rect.y-150), 1.5, [0,1], self, 10, damage=-1, lifetime=50, layer=5))
+                proj_handler.add_projectile(ProjectileHoming((self.rect.x, self.rect.y-150), 5, [0,1], self, 10, damage=-1, lifetime=50, layer=5))
 
     def make_dash_fade(self, camera):
         '''Make the glowing white aftereffects of dashing'''
