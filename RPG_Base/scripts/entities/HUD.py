@@ -1,6 +1,8 @@
 import pygame, math
 from scripts.utils.core_functions import get_images, prep_image
 
+font_lg = pygame.font.Font("data/fonts/Medici.ttf", 40)
+
 
 class HUD():
     def __init__(self, player, camera):
@@ -64,6 +66,10 @@ class HUD():
         self.zeal_subsurf = pygame.transform.scale(self.zeal_subsurf, (disp_width, self.zeal_height))
         self.zeal_subsurf.blit(self.zeal_counter, (0,0))
         self.surf.blit(self.zeal_subsurf, self.zeal_offset)
+
+    def altars_found(self):
+        msg = font_lg.render(f"Hymns Found: {str(self.player.num_altars)}/3", False, (255,255,255))
+        self.surf.blit(msg, (40,140))
         
 
     def update(self):
@@ -72,5 +78,6 @@ class HUD():
         if self.player.health > 0:
             self.draw_health()
             self.draw_zeal()
+            self.altars_found()
        
         

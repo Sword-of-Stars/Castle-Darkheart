@@ -22,7 +22,7 @@ def split_and_rejoin(text):
 
  # If there are less than two lines, return the original text.
     if len(lines) < 2:
-        return list(text)
+        return [text]
 
     # Rejoin the lines in pairs, with newline characters in between.
     result = []
@@ -44,6 +44,7 @@ class TextBox():
         self.character_text = font_lg.render(character, False, (255,255,255))
         self.text_pos = [400,600]
         self.overlay = prep_image(pygame.image.load("data/portrait_overlay.png"), 3, colorkey=(0,0,0))
+        self.img = pygame.transform.scale_by(pygame.image.load("data/book.png"), 1.5).convert_alpha()
 
         self.all_msgs = split_and_rejoin(msg) # paired messages by 2s
         self.current_msg = 0
@@ -85,11 +86,20 @@ class TextBox():
             else:
                 self.all_finished = True
 
+    def reset(self):
+        self.msg_pointer = 0
+        self.current_msg = 0
+        self.msg = self.all_msgs[0]
+
+        self.msg_finished = False
+        self.all_finished = False
+
     def update(self, camera):
         self.update_msg()
         camera.ui_surf.blit(self.character_text, self.text_pos)
         camera.ui_surf.blit(self.msg_text, self.msg_pos)
 
+        camera.ui_surf.blit(self.img, self.pos)
         camera.ui_surf.blit(self.overlay, self.pos)
 
     

@@ -78,8 +78,7 @@ class MenuScreen():
         self.fade_out = fade_out
         self.fade_t = 0
 
-        pygame.mixer.music.load('data/music/main-1/main-3.mp3')
-        pygame.mixer.music.play(-1)
+       
 
         self.camera = camera
         self.clock = clock
@@ -87,7 +86,12 @@ class MenuScreen():
         self.screen = screen
 
         camera.vignette = 0.9
-   
+
+    def start(self):
+        pygame.mixer.music.load('data/music/main-1/main-3.mp3')
+        pygame.mixer.music.play(-1)
+
+        self.camera.fill()
     
     def load_images(self):
         for image_name, image_data in self.images.items():

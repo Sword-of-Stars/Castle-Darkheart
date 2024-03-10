@@ -22,7 +22,7 @@ def create_radial_gradient(size, center, color, transparency):
 # Set the parameters
 image_size = (50, 50)
 gradient_center = [x//2 for x in image_size]
-gradient_color = (255, 0, 0)  # Red color
+gradient_color = (255, 255, 255)  # white color
 gradient_transparency = 0.5  # Set transparency between 0 (fully transparent) and 1 (fully opaque)
 
 # Create the radial gradient image

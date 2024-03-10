@@ -9,7 +9,7 @@ def handle_projectiles(proj_handler, enemy_handler, player, partman):
     for proj in reversed(proj_handler.projectile_list):
         for enemy in enemy_handler.enemy_list:
             if circle_collide(proj.pos, proj.radius, enemy.rect.center, enemy.radius):
-                if proj.origin != "enemy":
+                if proj.origin != "enemy" and proj.origin != "neutral":
                     if enemy.state != "recover":
                         player.sword.hit()
 
@@ -29,4 +29,7 @@ def handle_projectiles(proj_handler, enemy_handler, player, partman):
             if circle_collide(proj.pos, proj.radius, player.rect.center, player.radius):
                 if proj.origin == "enemy":
                     player.take_damage(1, proj)
+                    proj.unalive()
+
+                elif proj.origin == "neutral":
                     proj.unalive()

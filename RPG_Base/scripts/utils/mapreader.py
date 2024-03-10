@@ -1,9 +1,13 @@
 import pygame
 import json
+import random
 
 from scripts.entities.obstacle import ObstacleImage, Asset
 from scripts.story.trigger import Trigger
 from scripts.utils.core_functions import load_json, world_to_screen
+from scripts.entities.altar import Altar
+
+from scripts.story.lore import hymns, final_stanza
 
 class Map:
     def __init__(self, mapfile, db, camera):
@@ -12,6 +16,8 @@ class Map:
         self.obstacles = []
         self.triggers = []
         self.assets = []
+        self.altars = []
+        self.all_altars = []
 
         self.map_dict = {}
         self.config = load_json("maps/config")
@@ -43,8 +49,20 @@ class Map:
 
                     if tile['z-order'] == 1:
                         self.map_dict[key].append(ObstacleImage(*pos, img, tile["z-order"]))
+                    elif tile["tile_ID"] == "ss;1;13":
+                        
+                        if pos[1] < -17000:
+                            altar = Altar(*pos, img, 1, msg=final_stanza, final=True)
+                        else:
+                            hymn = random.choice(hymns)
+                            hymns.remove(hymn)
+                            altar = Altar(*pos, img, 1, msg=hymn)
+                        self.map_dict[key].append(altar)
+                        self.all_altars.append(altar)
                     else:
                         self.map_dict[key].append(Asset(*pos, img, tile["z-order"]))
+
+                
             
                 elif tile['group'] == 'trigger':
                     x, y = tile['pos']
@@ -57,19 +75,26 @@ class Map:
     def draw_world(self, camera):
         self.obstacles = [] # Later, update less frequently
         self.assets = []
+        self.altars = []
         visible_chunks = camera.get_visible_chunks()
 
         for chunk in visible_chunks: # Set to visible later, rough for now
             if chunk in self.map_dict:
                 for tile in self.map_dict[chunk]:
-                    if tile.group == "obstacle" and tile.layer == 1:
+                    if tile.group == "obstacle":# and tile.layer == 1:
                         self.obstacles.append(tile)
                     elif tile.group == "trigger":
                         self.triggers.append(tile)
                     elif tile.group == "asset":
                         self.assets.append(tile)
+                    elif tile.group == "altar":
+                        self.altars.append(tile)
+                        self.obstacles.append(tile)
 
         for tile in self.obstacles:
+            camera.to_render(tile)
+
+        for tile in self.altars:
             camera.to_render(tile)
 
         for tile in self.assets:

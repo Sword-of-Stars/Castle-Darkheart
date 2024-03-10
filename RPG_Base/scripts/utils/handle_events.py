@@ -1,6 +1,6 @@
 import pygame, sys
 
-def handle_events(player, tutorial):
+def handle_events(player, tutorial, txt, camera):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -22,6 +22,8 @@ def handle_events(player, tutorial):
                 player.pressed["space"] = True
             elif event.key == pygame.K_x:
                 tutorial.next()
+
+                print(camera.x, camera.y)
 
 
             elif event.key == pygame.K_ESCAPE:
@@ -47,6 +49,9 @@ def handle_events(player, tutorial):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 player.sword.swing()
+
+                if txt != None:
+                    txt.next()
 
             elif event.button == 3:
                 player.heal()

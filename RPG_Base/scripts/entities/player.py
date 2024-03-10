@@ -1,4 +1,5 @@
 import pygame
+import math
 
 from scripts.entities.entity import Entity
 from scripts.utils.core_functions import collision_list, get_images, prep_image, angle_to
@@ -64,7 +65,7 @@ class Player(Entity):
 
         self.shadow = Shadow([0,0,self.rect.width,16], 0.9)
 
-        self.maxHealth = 15
+        self.maxHealth = 5
         self.health = self.maxHealth
         self.toHeal = 0
 
@@ -83,6 +84,11 @@ class Player(Entity):
         self.death_sound = pygame.mixer.Sound("data/sound_effects/player_death_01.wav")
         self.death_linger_max = 100
         self.death_linger = self.death_linger_max
+
+        self.projectile_image = prep_image(get_images("data/projectile_2.png")[0], 2)
+        self.heal_sound = pygame.mixer.Sound("data/sound_effects/heal.wav")
+
+        self.num_altars = 0
 
     def reset(self, x, y):
         frames = [prep_image(image, 4) for image in get_images("data/knight5.png")]
@@ -105,7 +111,7 @@ class Player(Entity):
         self.health = self.maxHealth
         self.toHeal = 0
         self.is_alive = True
-        self.invincibility_timer_max = 15
+        self.invincibility_timer_max = 30
         self.invincibility_timer_dash = self.dash_frames + 3
         self.invincibility_timer = 0
 
@@ -116,7 +122,7 @@ class Player(Entity):
         self.zeal = 0
 
         # Speed and Movement
-        self.speed = 6
+        self.speed = 30
         self.normal_speed = 6
 
         # Dashing
@@ -127,6 +133,8 @@ class Player(Entity):
         self.MAX_DASH_TIMER = 100
 
         self.is_alive = True
+
+        self.num_altars = 0
 
 
     def set_HUD(self, HUD):
@@ -200,8 +208,13 @@ class Player(Entity):
             self.HUD.flash(1)
             self.toHeal = 1
 
+            self.heal_sound.play()
+
             for i in range(5):
-                proj_handler.add_projectile(ProjectileHoming((self.rect.x, self.rect.y-150), 5, [0,1], self, 10, damage=-1, lifetime=50, layer=5))
+                angle = 0.01+math.pi+(math.pi/5)*i
+                dx = 40
+                pos = (self.rect.x+math.cos(angle)*dx+10, self.rect.y+math.sin(angle)*dx)
+                proj_handler.add_projectile(ProjectileHoming(pos, 2, [math.cos(angle),math.sin(angle)], self, 10, damage=-1, lifetime=500, layer=2, img=self.projectile_image, origin="neutral", accel=0.5))
 
     def make_dash_fade(self, camera):
         '''Make the glowing white aftereffects of dashing'''

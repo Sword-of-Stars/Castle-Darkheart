@@ -75,11 +75,11 @@ class ProjectileCircle(Projectile):
            # pygame.draw.circle(camera.display, (255,0,0), self.pos, self.radius)
 
 class ProjectileHoming(Projectile):
-    def __init__(self, pos, speed, vel, target, radius=10, damage=1, lifetime=10000, img=None, origin=None, layer=4):
+    def __init__(self, pos, speed, vel, target, radius=10, damage=1, lifetime=10000, img=None, origin=None, layer=4, accel=0.05):
         Projectile.__init__(self, pos, speed, vel, lifetime, img, origin, layer)
 
         self.target = target
-        self.accel = 0.05
+        self.accel = accel
 
         self.radius = radius
         self.damage = damage

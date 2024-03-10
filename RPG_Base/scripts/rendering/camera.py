@@ -92,6 +92,7 @@ class Camera():
     def fill(self):
         self.render_list = []
         self.display.fill((0,0,0))
+        self.ui_surf.fill((0,0,0,0))
 
     def set_screen_shake(self, val, magnitude=[3,1]):
         self.screen_shake = True

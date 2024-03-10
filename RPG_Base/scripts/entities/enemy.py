@@ -115,6 +115,7 @@ class Wendigo(Enemy):
 
         self.pos = pygame.Vector2(x,y)
 
+
         self.layer = 2
 
         #=== Internal timing circuit ===#
@@ -176,6 +177,9 @@ class Wendigo(Enemy):
         self.aoe = prep_image(projs[1], 4).convert_alpha()
 
         self.facing = False # Start facing left
+
+        explosion(self.rect.center, 5, part_handler)
+
 
 
         # Implement a ticket system to avoid overfilling the screen
