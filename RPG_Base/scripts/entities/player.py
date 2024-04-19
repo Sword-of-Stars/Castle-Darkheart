@@ -122,7 +122,7 @@ class Player(Entity):
         self.zeal = 0
 
         # Speed and Movement
-        self.speed = 30
+        self.speed = 6
         self.normal_speed = 6
 
         # Dashing

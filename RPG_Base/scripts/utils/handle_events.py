@@ -23,8 +23,6 @@ def handle_events(player, tutorial, txt, camera):
             elif event.key == pygame.K_x:
                 tutorial.next()
 
-                print(camera.x, camera.y)
-
 
             elif event.key == pygame.K_ESCAPE:
                 pygame.quit()

@@ -32,8 +32,6 @@ def main(state):
 
     camera.vignette = 0.55
 
-    
-
     hud.update()
 
     txt = None
@@ -168,7 +166,8 @@ def main(state):
     return state, track
 
 
-WIDTH, HEIGHT = 1920,1080
+WIDTH, HEIGHT = 1600, 1024
+print(pygame.display.list_modes())
 screen = pygame.display.set_mode((WIDTH, HEIGHT),  pygame.OPENGL | pygame.DOUBLEBUF | pygame.HIDDEN)
 camera = Camera(0,0,WIDTH, HEIGHT)
 clock = pygame.time.Clock()
