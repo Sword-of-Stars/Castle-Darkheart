@@ -15,7 +15,7 @@ menu = MenuScreen(WIDTH, HEIGHT, camera, clock, mouse, screen)
 transition = TransitionScreen(screen, clock, camera)
 cred = Credits(WIDTH, HEIGHT, camera, clock, mouse, screen)
 
-pygame.display.set_caption("Castle Darkheart")#clock.get_fps()))
+pygame.display.set_caption("Castle Darkheart")
 
 state = "menu"
 
@@ -50,10 +50,10 @@ while True:
         check_cred = False
 
 
-    if state == "game" and check_game: #chacking for changes
+    if state == "game" and check_game: 
         reset()
 
-    if state == "transition" and check_trans: #chacking for changes
+    if state == "transition" and check_trans:
         transition = TransitionScreen(screen, clock, camera)
 
         camera.vignette = 0.8

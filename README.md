@@ -2,6 +2,16 @@
 My indie pixel-art dungeon-crawler RPG
 ![image](/RPG_Base/data/menu_images/composite_menu.png)
 
+## How to Play
+Use the following command to clone this repository:
+```shell
+git clone https://github.com/Sword-of-Stars/Castle-Darkheart
+```
+
+Then, install the necessary requirements using
+```shell
+```
+
 ## Story
 Venture through the perilous Castle Darkheart in this dungeon-crawler RPG. Battle dangerous foes, acquire powerful abilities, and uncover ancient secrets in a twisted realm ruled by the Mad King.
 
