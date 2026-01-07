@@ -13,7 +13,7 @@ Then, install the necessary requirements using pip:
 pip install -r requirements.txt
 ```
 
-Then run the following command from the base directory:
+To play the game, run the following command from the base directory:
 ```shell
 python RPG_Base/main.py
 ```
