@@ -13,6 +13,11 @@ Then, install the necessary requirements using pip:
 pip install -r requirements.txt
 ```
 
+Then run the following command from the base directory:
+```shell
+python RPG_Base/main.py
+```
+
 ## Story
 Venture through the perilous Castle Darkheart in this dungeon-crawler RPG. Battle dangerous foes, acquire powerful abilities, and uncover ancient secrets in a twisted realm ruled by the Mad King.
 
