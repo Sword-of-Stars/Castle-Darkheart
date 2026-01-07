@@ -371,74 +371,77 @@ class WorldBox(Region):
       pygame.draw.rect(self.trigger, (20,240,120), (0,0,size,size))
 
    def draw_world(self, screen):
-      # Get the current world
-      m = self.builder.current_map['chunks']
+    """
+    Draws the current world with all its tiles, decor, and triggers on the screen.
 
-      renderer = []
+    This method calculates which chunks are visible on the screen, gathers all the 
+    tiles from those chunks, and sorts them by z-order for correct rendering.
 
-      # IDEA:
-      # Check to see what chunks are on screen
-      # Then, pass all tiles to a render list and sort with z-order
-      # Once that's done, only check to see if a chunk is loaded or unloaded,
-      # eliminating the need to recalculate every frame
+    Parameters:
+    -----------
+    screen : pygame.Surface
+        The surface to render the world on.
+    """
 
-      ax, ay = screen_to_chunk(self.rect.topleft, self.offset, scale=self.scale)
-      bx, by = screen_to_chunk(self.rect.bottomright, self.offset, scale=self.scale)
+    # Get the current map chunks from the builder
+    chunks = self.builder.current_map['chunks']
 
-      c_dx = bx-ax+1 # +1 adds a bit of buffer for seamless drawing
-      c_dy = by-ay+1
-      
-      chunk_map = []
-   
-      for x in range(-1, c_dx):
-         for y in range(-1, c_dy):
-               chunk_map.append(f"{ax+x};{ay+y}")
-                  
-      # For each item in the world
-      for key, chunk in m.items(): # Set to visible later, rough for now
+    # Define some constants for magic numbers to improve readability
+    TILE_SIZE = 64
+    CHUNK_SIZE = 4
 
-         if key in chunk_map:
+    # List to store all the tiles and their z-order for rendering
+    renderer = []
 
-            # Convert chunk id into usable parameters
-            cx, cy = [int(x) for x in key.split(";")]
+    # Determine the visible area of the screen in terms of chunks
+    ax, ay = screen_to_chunk(self.rect.topleft, self.offset, scale=self.scale)
+    bx, by = screen_to_chunk(self.rect.bottomright, self.offset, scale=self.scale)
 
-            # Pass all tiles in chunk to a renderer
-            for tile in chunk:
+    # Calculate the number of chunks to check (with a buffer)
+    c_dx = bx - ax + 1
+    c_dy = by - ay + 1
 
-               # Draw tiles
-               if tile['group'] == 'tile':
-                  x, y = tile['pos']
-                  pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+    # Generate the list of visible chunk keys
+    visible_chunks = [f"{ax+x};{ay+y}" for x in range(-1, c_dx) for y in range(-1, c_dy)]
 
-                  pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
+    # Loop through each chunk in the world
+    for key, chunk in chunks.items():
+        if key not in visible_chunks:
+            continue
 
-                  img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
-                  renderer.append((img, pos, tile["z-order"]))
+        # Convert chunk key to chunk coordinates
+        cx, cy = map(int, key.split(";"))
 
-               elif tile['group'] == 'decor': # For now, identical code. However, in the future, this should include offsets for decor
+        # Iterate through each tile in the chunk
+        for tile in chunk:
+            x, y = tile['pos']
 
-                  if tile["offset"] == [0,0]:
-                     x, y = tile['pos']
-                     pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+            # Compute the world position of the tile
+            tile_pos = ((x + cx * CHUNK_SIZE) * TILE_SIZE, (y + cy * CHUNK_SIZE) * TILE_SIZE)
+            pos = world_to_screen(tile_pos, self.offset, self.scale)
 
-                  else:
-                     x, y = tile['offset']
-                     pos = world_to_screen((x, y), self.offset, self.scale) # Magic numbers!
+            # Apply the tile's offset to the position
+            pos = [p + tile['offset'][i] * self.scale for i, p in enumerate(pos)]
 
-                  img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
-                  screen.blit(img, pos)
+            # Load the tile image and scale it based on the current zoom level
+            img = pygame.transform.scale_by(self.builder.database[tile['tile_ID']], self.scale)
 
-               if tile['group'] == 'trigger' and self.builder.show_trigger:
-                  x, y = tile['pos']
-                  pos = world_to_screen(((x+cx*4)*64, (y+cy*4)*64), self.offset, self.scale) # Magic numbers!
+            # Sort tiles by z-order (higher values drawn last) and by vertical position
+            renderer.append((img, pos, tile["z-order"]))
 
-                  pos = [p + tile['offset'][i]*self.scale for i, p in enumerate(pos)]
+            # Special case for decor tiles (similar logic for now but can be extended later)
+            if tile['group'] == 'decor':
+                renderer.append((img, pos, tile["z-order"]))
 
-                  img = pygame.transform.scale_by(self.trigger, self.scale)
-                  renderer.append((img, pos, tile["z-order"]))
-         
-      for item in sorted(renderer, key=lambda x:(x[2], x[1][1])): # sort based on z-order
-         screen.blit(item[0], item[1])
+            # Render trigger tiles if they should be shown
+            if tile['group'] == 'trigger' and self.builder.show_trigger:
+                trigger_img = pygame.transform.scale_by(self.trigger, self.scale)
+                renderer.append((trigger_img, pos, tile["z-order"]))
+
+    # Render the tiles, sorting by z-order and Y position for proper layering
+    for img, pos, _ in sorted(renderer, key=lambda x: (x[2], x[1][1])):  # Sort by z-order and vertical position
+        screen.blit(img, pos)
+
 
    def place_asset(self, pos, layer, selected, current_map, snap_to=False):
       # cx, cy describes the x- and y-coordinate of the active chunk

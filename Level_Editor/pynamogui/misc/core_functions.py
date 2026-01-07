@@ -113,7 +113,7 @@ def get_images(spritesheet):
         img = spritesheet.crop([start[i][0]+1, start[i][1]+1, end[i][0], end[i][1]])
         image_bytes = img.tobytes()
 
-# Create a Pygame surface from the bytes object
+        # Create a Pygame surface from the bytes object
         img2 = pygame.image.fromstring(image_bytes, img.size, 'RGBA')#.set_colorkey((255,255,255))
         images.append(img2)
 

@@ -1,15 +1,16 @@
 # Castle-Darkheart
-My indie pixel-art dungeon-crawler RPG
 ![image](/RPG_Base/data/menu_images/composite_menu.png)
+An indie pixel-art dungeon-crawler
 
-## How to Play
+## Installation
 Use the following command to clone this repository:
 ```shell
 git clone https://github.com/Sword-of-Stars/Castle-Darkheart
 ```
 
-Then, install the necessary requirements using
+Then, install the necessary requirements using pip:
 ```shell
+pip install -r requirements.txt
 ```
 
 ## Story

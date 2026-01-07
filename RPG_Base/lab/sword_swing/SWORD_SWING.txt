@@ -1,4 +1,0 @@
-This is one bit of functionality I NEED to get right, as it's THE core mechanic of the game
-Determine whether caching is needed or not, I hope not, but even if it is, I can get away with only loading 
-what's on the hotbar, if there's no performance drop from it
-Tweening is cool, though. Could use it in an animation process, or perhaps for my camera smoothing

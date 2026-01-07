@@ -28,8 +28,10 @@ class Autotiler:
     def update(self, tile_pos, chunk, builder, id, group):
         cardinal_neighbors, diagonal_neighbors = builder.world.get_neighbors(tile_pos, chunk)
 
+        # the autotiler calcuates the binary sum of the given tile
         bitmap_sum = 0
 
+        # go thorough all of a tile's neighbors
         for chunk_, tile_pos_, direction in cardinal_neighbors:
             tile = builder.world.get_at(tile_pos_, chunk_, builder.layer, builder.current_map)
             if tile != None:
